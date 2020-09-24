@@ -1,4 +1,4 @@
-ComponentName :	Latency2bit	Latency8bit	Latency16bit	Latency32bit	Latency64bit
-ADD		4.321		5.085		5.269		5.637		6.373
-SUB		4.321		5.085		5.269		5.637		6.373
+ComponentName:	Latency2bit	Latency8bit	Latency16bit	Latency32bit	Latency64bit
+ADD		4.337		5.11		5.294		5.662		6.398
+SUB		4.337		5.11		5.294		5.662		6.398
 REG		3.527		3.527		3.527		3.527		3.527
