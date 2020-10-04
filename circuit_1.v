@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-module Circuit1(a, b, c, z, x, clk, rst);
+module circuit_1(a, b, c, z, x, clk, rst);
     input clk, rst;
     input [7:0] a, b, c;
     output [7:0] z;

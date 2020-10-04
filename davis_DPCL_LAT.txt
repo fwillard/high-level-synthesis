@@ -1,4 +1,0 @@
-ComponentName : Latency2bit Latency8bit Latency16bit Latency32bit Latency64bit
-MUL:             4.337        7.412       7.047        10.680       14.374 
-DIV:             4.337        13.600      26.571       61.341       167.529
-MOD:             4.337        14.794      28.451       64.230       170.512

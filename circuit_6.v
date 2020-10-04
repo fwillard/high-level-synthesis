@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-module Circuit6(a, b, c, zero, z, clk, rst);
+module circuit_6(a, b, c, zero, z, clk, rst);
 
 input [63:0] a, b, c, zero;
 input clk, rst;

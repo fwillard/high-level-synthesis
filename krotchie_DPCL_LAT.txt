@@ -1,4 +1,0 @@
-ComponentName : Latency2bit Latency8bit Latency16bit Latency32bit Latency64bit
-MUX2x1:           5.361        5.361       5.361        5.361        5.361
-INC               5.361        5.919       6.620        7.088        8.024
-DEC               5.361        5.919       6.618        7.086        8.022
