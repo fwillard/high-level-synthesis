@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include "graph.hpp"
+#include "node.hpp"
 int main(){
-    printf("Test");
+    Graph g;
 }
