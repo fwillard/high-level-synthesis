@@ -1,2 +1,2 @@
 #add executable
-add_executable(dgpen main.cpp)
+add_executable(dpgen main.cpp)
