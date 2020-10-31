@@ -60,7 +60,7 @@ bool Parser::generateComponents(){
 
     for(vector<string> line : this->tokens){ // loop through all tokenized lines
         int token_index = 1;
-        string start = line.get(0);
+        string start = line.at(0);
         //determine if this is a declaration or an assignment
         while(token_index < line.size()){
             if(start == "input"){

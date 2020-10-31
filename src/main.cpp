@@ -1,13 +1,11 @@
-//
-//  main.cpp
-//  dpgen
-//
-//  Created by Finn Willard on 10/28/20.
-//
+#include "Parser.cpp"
+#include <iostream>
 
-#include <stdio.h>
-#include "graph.hpp"
-#include "node.hpp"
+using namespace std;
+
 int main(){
-    Graph g;
+    string testfile = "assignment_2_circuits/574a_circuit5.txt";
+
+    Parser p = Parser();
+    p.parse(testfile);
 }
