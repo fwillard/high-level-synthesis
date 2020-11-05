@@ -30,6 +30,9 @@ Node Graph::get_node(int id){
         return graph[id];
     }
 }
+std::unordered_map<int, Node> Graph::get_graph(){
+    return graph;
+}
 
 std::vector<Edge> Graph::find_adjacent(int id){
     Node n = get_node(id);
@@ -60,4 +63,32 @@ bool Graph::contains(std::vector<Node> v, Node n){
     }
 }
 
+double Graph::critical_path(Graph g){
+    double max = 0.0;
+    std::list<std::pair<int, Node> >  l;
+    for (auto u : g.get_graph()) {
+        
+//        if(u.second.is_reg){
+//            reg_to_reg_topo_sort(g, l, u);
+//        }
+        reg_to_reg_topo_sort(g, l, u);
+        
+    }
+}
 
+void Graph::reg_to_reg_topo_sort(Graph g, std::list<std::pair<int, Node> > l, std::pair<int, Node> u){
+    for (auto u : g.get_graph()) {
+        u.second.set_color(white);
+        reg_to_reg_ts_visit(g, l, u);
+    }
+}
+
+void Graph::reg_to_reg_ts_visit(Graph g, std::list<std::pair<int, Node> > l, std::pair<int, Node> u){
+    u.second.set_color(gray);
+    for (auto e : u.second.get_adjacent()){
+        Node v = g.get_node(e.get_end_vertex());
+        if((v.get_color() == white) && (!v.is_reg)){
+//            reg_to_reg_ts_visit(g, l, );
+        }
+    }
+}

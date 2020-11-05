@@ -10,4 +10,5 @@
 #include "node.hpp"
 int main(){
     Graph g;
+    Graph::critical_path(g);
 }
