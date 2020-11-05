@@ -8,4 +8,7 @@ int main(){
 
     Parser p = Parser();
     p.parse(testfile);
+  
+    Graph g;
+    Graph::critical_path(g);
 }
