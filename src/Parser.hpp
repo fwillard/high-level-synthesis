@@ -20,7 +20,6 @@ class Parser{
         ~Parser();
         bool parse(const string filename);
         void print_components();
-        Graph g;
         
         //Public Variables
                 
@@ -37,6 +36,7 @@ class Parser{
         //Private Variables
         vector<vector<string>> tokens;
         vector<Component> components;
+        Graph g;
 };
 
 #endif
