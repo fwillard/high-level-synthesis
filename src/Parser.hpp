@@ -9,6 +9,7 @@
 #include <string>
 
 #include "Component.hpp"
+#include "graph.hpp"
 
 using namespace std;
 
@@ -19,6 +20,7 @@ class Parser{
         ~Parser();
         bool parse(const string filename);
         void print_components();
+        Graph g;
         
         //Public Variables
                 
