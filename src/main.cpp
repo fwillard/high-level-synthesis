@@ -1,4 +1,5 @@
 #include "Parser.cpp"
+#include "Component.cpp"
 #include <iostream>
 
 using namespace std;
@@ -9,6 +10,6 @@ int main(){
     Parser p = Parser();
     p.parse(testfile);
   
-    Graph g;
-    Graph::critical_path(g);
+   // Graph g;
+   // Graph::critical_path(g);
 }
