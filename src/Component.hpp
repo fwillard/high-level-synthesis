@@ -13,15 +13,17 @@ class Component{
         enum component_type{NONE, INPUT, OUTPUT, WIRE, REG, ADD, SUB, MUL, SHR, SHL, DIV, MOD, INC, DEC, MUX2x1, COMP};
 
         Component();
-        Component(string n, Component::component_type t, bool sn, int width);
+        Component(string n, Component::component_type t, bool sn, int width, int id);
 
         string name = "default";
         component_type type = NONE;
         bool sign = false;
         int datawidth = -1;
+        int id;
 
-        vector<Component *> inputs;
-        vector<Component *> outputs;
+
+        vector<int> inputs;
+        int output;
 }; 
 
 

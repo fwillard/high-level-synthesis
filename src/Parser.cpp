@@ -63,6 +63,12 @@ bool Parser::generateComponents(){
     //loop through all tokens re-populating the list of components
     this->components.clear(); 
 
+    //generate inop and ouop
+    this->components.insert({0,Component("INOP",Component::NONE,false,1,0)});
+    this->components.insert({1,Component("OUOP",Component::NONE,false,1,1)});
+
+    int id_count = 2;
+
     Component current_component;
     Component tmp; 
 
@@ -77,8 +83,8 @@ bool Parser::generateComponents(){
 
 
         //Declare local variables used in switch statemeelement at indexnt 
-        string width_str, namestr, arg1, arg2, arg3;
-        int width, index, index_1, index_2, index_3, pos;
+        string width_str, namestr, arg0, arg1, arg2, arg3;
+        int width, output_index, index_1, index_2, index_3, pos;
         Component *point = NULL;
         switch(current_type){
             case 1 ... 4:   //input, output, wire, reg' (Doesnt address input or output)
@@ -103,6 +109,19 @@ bool Parser::generateComponents(){
                 //Datawidth
                 //TODO: Add error checking to number parsing
                 current_component.datawidth = extract_int(width_str);
+                if(current_type == 1){
+                    this->components.at(0).datawidth = current_component.datawidth;
+                    this->components.at(0).sign = current_component.sign;
+
+                    current_component.inputs.push_back(0);
+                }
+                else if(current_type == 2){
+                    this->components.at(1).datawidth = current_component.datawidth;
+                    this->components.at(1).sign = current_component.sign;   
+
+                    current_component.output = 1;                 
+                }
+                
 
                 //Type
                 current_component.type = static_cast<Component::component_type>(current_type);
@@ -120,26 +139,42 @@ bool Parser::generateComponents(){
 
                     tmp.name = namestr;
 
-                    this->components.push_back(tmp);
+                    //assign ID for node creation
+                    tmp.id = id_count;
+                    id_count++;
+
+                    this->components.insert({tmp.id,tmp});
                 }
 
                 break;
-            case 5 ... 13:  //2-input operators
-            case 15 ... 17:  //comparitor
-                namestr = line.at(0);
+            case 5 ... 17:  //comparitor
+                arg0 =    line.at(0);
                 arg1 =    line.at(2);
                 arg2 =    line.at(4);
 
-                current_component = this->components.at(index); //copy of the component in memory, prevents pointer issues 
+                current_component = Component(); //Create a new component for the operator 
+                current_component.type = static_cast<Component::component_type>(generate_type(line));               
+                current_component.id = id_count; id_count++;
+                
+                //handle the output
+                if(!is_number(arg0)){
+                    output_index = index_by_name(arg0);
 
+                    if(output_index < 0){
+                        return false;
+                        //TODO throw error for unknown wire/output
+                    }
 
-                index = index_by_name(line.at(0));
-                if(index < 0){
-                    //TODO: Missing wire/output error
+                    if(components.at(output_index).type <= 4 && components.at(output_index).type > 1){ //if it is a wire/out/reg
+                        components.at(output_index).inputs.push_back(current_component.id);
+                    }
+                    current_component.output = output_index;
+                }
+                else{
                     return false;
+                    //TODO throw error, unknown syntax
                 }
 
-                point = this->components.data();
                 //handle first argument
                 if(!is_number(arg1)){
                     index_1 = index_by_name(arg1);
@@ -148,35 +183,63 @@ bool Parser::generateComponents(){
                         return false;
                         //TODO throw error for unknown wire/input
                     }
-                    point += index_1; //move pointer to selected index
-                    current_component.inputs.push_back(point);
+                    if(components.at(index_1).type >= 1 || components.at(index_1).type <= 4 && components.at(index_1).type != 2){ //if it is a wire/out/reg
+                        components.at(index_1).output = current_component.id;
+                    }
+                    current_component.inputs.push_back(index_1);
                 }
                 else{
-                    
+                    return false;
+                    //TODO throw error, unknown syntax
                 }
                 
-                point = this->components.data();
                 //handle second argument
                 if(!is_number(arg2)){
-                    index_2 = index_by_name(arg1);
+                    index_2 = index_by_name(arg2);
 
                     if(index_2 < 0){
                         return false;
                         //TODO throw error for unknown wire/input
                     }
-                    point += index_2; //move pointer to selected index
-                    current_component.inputs.push_back(point);
+                    if(components.at(index_2).type >= 1 || components.at(index_2).type <= 4 && components.at(index_2).type != 2){ //if it is a wire/out/reg
+                        components.at(index_2).output = current_component.id;
+                    }
+                    current_component.inputs.push_back(index_2);
                 }
                 else{
-                
+                    return false;
+                    //TODO throw error, unknown syntax
                 }
-                
-                
 
+                if(current_type == 14){ //third input for mux
+                    arg3 = line.at(6);
 
-                
-                break;
-            case 14:        //multiplexer
+                    if(!is_number(arg3)){
+                        index_3 = index_by_name(arg3);
+
+                        if(index_3 < 0){
+                            return false;
+                            //TODO throw error for unknown wire/input
+                        }
+                    if(components.at(index_3).type >= 1 || components.at(index_3).type <= 4 && components.at(index_3).type != 2){ //if it is a wire/out/reg
+                        components.at(index_3).output = current_component.id;
+                    }                        
+                        current_component.inputs.push_back(index_3);
+                    }
+                    else{
+                        return false;
+                        //TODO throw error, unknown syntax
+                    }      
+                }       
+
+                //Other properties come from the input/output components
+                current_component.name = "Node_" + to_string(current_component.id);
+                current_component.datawidth = this->components.at(current_component.inputs.at(0)).datawidth;
+                current_component.sign = this->components.at(current_component.inputs.at(0)).sign;
+
+                this->components.insert({current_component.id,current_component});
+
+               //multiplexer
                 break;
             default:        //error: unknown operator
                 break;
@@ -205,7 +268,7 @@ int Parser::index_by_name(const string name){
 }
 
 int Parser::generate_type(const vector<string> &line){
-    vector<string> types = {"none","input","output","wire","register","+","-","*","?",">>","<<","/","%","++","--","<",">","=="};
+    vector<string> types = {"none","input","output","wire","register","+","-","*",">>","<<","/","%","++","--","?","<",">","=="};
     //                 NONE, INPUT, OUTPUT, WIRE, REG, ADD, SUB, MUL, MUX2x1, SHR, SHL, DIV, MOD, INC, DEC, COMP
 
     string start = line.at(0); //The first token in the line
@@ -232,7 +295,12 @@ void Parser::print_components(){
 
     for(int i = 0; i< this->components.size(); i++){
         current = &this->components.at(i);
-        cout << current->name << "  |  " << types[current->type] << "  |  " << current->sign << "  |  " << current->datawidth << "\n";
+        cout << current->id << "  |  " << current->name << "  |  " << types[current->type] << "  |  " << current->sign << "  |  " << current->datawidth;
+        cout << "  |  (" << this->components.at(current->output).name << " | ";
+        for(int i=0; i<current->inputs.size();i++){
+            cout << this->components.at(current->inputs.at(i)).name << " ";
+        }
+        cout << ")\n";
     }
 }
 

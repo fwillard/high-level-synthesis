@@ -7,6 +7,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <map>
 
 #include "Component.hpp"
 #include "graph.hpp"
@@ -35,7 +36,7 @@ class Parser{
 
         //Private Variables
         vector<vector<string> > tokens;
-        vector<Component> components;
+        map<int,Component> components;
         Graph g;
 };
 

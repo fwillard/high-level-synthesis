@@ -13,7 +13,7 @@
 #include <map>
 #include <vector>
 #include <list>
-enum color{
+enum Color{
     WHITE,
     GRAY,
     BLACK
@@ -23,7 +23,7 @@ struct vertex{
     std::vector<vert> adjacent;
     int id;
     vertex(int i, bool b, double w) : id(i), is_reg(b), weight(w) {}
-    color color;
+    Color color;
     double dist;
     double weight;
     bool is_reg = false;

@@ -9,8 +9,10 @@ int main(){
     string testfile = "assignment_2_circuits/574a_circuit5.txt";
 
     Parser p = Parser();
-    p.parse(testfile);
-    
+    if( !p.parse(testfile)){
+        cout << "There was an error parsing the provided file";
+    }
+/*    
     //THIS IS A TEST GRAPH FOR CRITICAL PATH CALCULATION
     Graph g;
     g.add_vertex(0, 0);
@@ -52,7 +54,7 @@ int main(){
     g.add_edge(9, 10);
     g.add_edge(7, 12);
     g.add_edge(11, 12);
-    
-    double max = Graph::critical_path(&g);
-    printf("Critical Path : %.3lf ns\n", max);
+    */
+    //double max = Graph::critical_path(&g);
+//    printf("Critical Path : %.3lf ns\n", max);
 }
