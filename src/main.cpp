@@ -8,9 +8,10 @@ using namespace std;
 int main(){
     string testfile = "assignment_2_circuits/574a_circuit5.txt";
 
-//    Parser p = Parser();
-//    p.parse(testfile);
-  
+    Parser p = Parser();
+    p.parse(testfile);
+    
+    //THIS IS A TEST GRAPH FOR CRITICAL PATH CALCULATION
     Graph g;
     g.add_vertex(0, 0);
     g.add_vertex(1, 8);

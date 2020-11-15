@@ -18,10 +18,10 @@ void Graph::add_vertex(const int id, double weight, bool is_reg){
     printf("\nVertex %d already exists!", id);
 }
 
-void Graph::add_edge(const int from, const int to, double cost){
+void Graph::add_edge(const int from, const int to, double weight){
     vertex *f = (graph.find(from)->second);
     vertex *t = (graph.find(to)->second);
-    std::pair<double, vertex *> edge = std::make_pair(cost, t);
+    std::pair<double, vertex *> edge = std::make_pair(weight, t);
     f->adjacent.push_back(edge);
 }
 

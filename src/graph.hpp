@@ -38,7 +38,7 @@ public:
     typedef std::map<int, vertex *> vertex_map;
     vertex_map graph;
     void add_vertex(const int, double, bool is_reg = false);
-    void add_edge(const int from, const int to, double cost = 0.0);
+    void add_edge(const int from, const int to, double weight = 0.0);
     static double critical_path(Graph*);
 };
 #endif /* graph_hpp */
