@@ -34,7 +34,7 @@ class Parser{
         bool is_number(string str);
 
         //Private Variables
-        vector<vector<string>> tokens;
+        vector<vector<string> > tokens;
         vector<Component> components;
         Graph g;
 };

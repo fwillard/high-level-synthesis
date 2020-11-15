@@ -10,23 +10,34 @@
 #define graph_hpp
 
 #include <stdio.h>
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <list>
-#include "node.hpp"
+enum color{
+    WHITE,
+    GRAY,
+    BLACK
+};
+struct vertex{
+    typedef std::pair<int, vertex*> vert;
+    std::vector<vert> adjacent;
+    int id;
+    vertex(int i) : id(i) {}
+    color color;
+    double dist;
+    vertex* pred;
+};
+
 class Graph{
 private:
-    std::unordered_map<int, Node> graph;
-    Node get_node(int id);
-    static bool contains(std::vector<Node>, Node n);
-    static void reg_to_reg_topo_sort(Graph g, std::list<std::pair<int, Node> > l, std::pair<int, Node> v);
-    static void reg_to_reg_ts_visit(Graph g, std::list<std::pair<int, Node> > l, std::pair<int, Node> v);
+    static void topo_vist(Graph*, std::list<vertex*>*, vertex*);
+    static void topo_sort(Graph*, std::list<vertex*>*);
+
 public:
-    Graph();
-    void add(int source, int dest, int weight);
-    std::vector<Edge> find_adjacent(int id);
-    bool is_connected(int source, int dest);
-    static double critical_path(Graph g);
-    std::unordered_map<int, Node> get_graph();
+    typedef std::map<int, vertex *> vertex_map;
+    vertex_map graph;
+    void add_vertex(const int);
+    void add_edge(const int from, const int to, double cost);
+    static double critical_path(Graph*);
 };
 #endif /* graph_hpp */

@@ -4,10 +4,6 @@ set ( DPGEN_SOURCES
     main.cpp
     graph.hpp
     graph.cpp
-    node.hpp
-    node.cpp
-    edge.hpp
-    edge.cpp
     Parser.cpp
     Parser.hpp
     Component.cpp

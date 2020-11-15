@@ -1,8 +1,8 @@
 #include "Parser.hpp"
 
 Parser::Parser(){
-    this->tokens = {};
-    this->components = {};
+//    this->tokens = {};
+//    this->components = {};
 }
 
 Parser::~Parser(){
@@ -30,7 +30,7 @@ bool Parser::parse(const string filename){
 
 bool Parser::tokenize(const string filename){
     
-    vector<vector<string>> current_lines = vector<vector<string>>();
+    vector<vector<string> > current_lines = vector<vector<string> >();
     
     ifstream infile(filename);
 
