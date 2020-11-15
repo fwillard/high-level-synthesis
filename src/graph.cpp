@@ -7,11 +7,11 @@
 
 #include "graph.hpp"
 
-void Graph::add_vertex(const int id){
+void Graph::add_vertex(const int id, double weight, bool is_reg){
     vertex_map::iterator itr = graph.find(id);
     if(itr == graph.end()){
         vertex *v;
-        v = new vertex(id);
+        v = new vertex(id, is_reg, weight);
         graph[id] = v;
         return;
     }
@@ -25,23 +25,24 @@ void Graph::add_edge(const int from, const int to, double cost){
     f->adjacent.push_back(edge);
 }
 
-void Graph::topo_sort(Graph *g, std::list<vertex*> *l){
+void Graph::topo_sort(Graph *g, std::list<vertex*> *l, vertex* u){
     for(auto u : g->graph){
         u.second->color = WHITE;
     }
-    for(auto u : g->graph){
-        if(u.second->color == WHITE){
-            topo_vist(g, l, u.second);
-        }
-    }
+    topo_vist(g, l, u);
 }
 
 void Graph::topo_vist(Graph *g, std::list<vertex*> *l, vertex* u){
+    l->clear();
     u->color = GRAY;
-    for(auto e: u->adjacent){
-        vertex* v = e.second;
-        if(v->color == WHITE){
+    for(auto e : u->adjacent){
+        vertex *v = e.second;
+        if((v->color == WHITE) && (!v->is_reg)){
             topo_vist(g, l, v);
+        }
+        else if((v->color == WHITE) && (v->is_reg)){
+            v->color = BLACK;
+            l->push_front(v);
         }
     }
     u->color = BLACK;
@@ -49,26 +50,31 @@ void Graph::topo_vist(Graph *g, std::list<vertex*> *l, vertex* u){
 }
 
 double Graph::critical_path(Graph *g){
+    double max = 0;
     std::list<vertex*> l;
-    topo_sort(g, &l);
     for(auto u : g->graph){
-        u.second->dist = 0;
-    }
-    for(auto u : l){
-        for(auto e : u->adjacent){
-            vertex *v = e.second;
-            if ((u->dist + e.first) > v->dist) {
-                v->dist = u->dist + e.first;
-                v->pred = u;
+        if(u.second->is_reg){
+            topo_sort(g, &l, u.second);
+            for(auto v : l){
+                v->dist = 0;
+            }
+            for(auto v : l){
+                if((v->is_reg && v == u.second) || !v->is_reg){
+                    for (auto e : v->adjacent) {
+                        vertex *w = e.second;
+                        if((v->dist + e.first + w->weight) > w->dist){
+                            w->dist = v->dist + e.first + w->weight;
+                        }
+                    }
+                }
+            }
+            for(auto v : l){
+                if(v->is_reg && v->dist > max){
+                    max = v->dist;
+                }
             }
         }
+        
     }
-    double max = 0;
-    for(auto u : g->graph){
-        if(u.second->dist > max){
-            max = u.second->dist;
-        }
-    }
-    
     return max;
 }

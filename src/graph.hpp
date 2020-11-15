@@ -22,22 +22,23 @@ struct vertex{
     typedef std::pair<int, vertex*> vert;
     std::vector<vert> adjacent;
     int id;
-    vertex(int i) : id(i) {}
+    vertex(int i, bool b, double w) : id(i), is_reg(b), weight(w) {}
     color color;
     double dist;
-    vertex* pred;
+    double weight;
+    bool is_reg = false;
 };
 
 class Graph{
 private:
     static void topo_vist(Graph*, std::list<vertex*>*, vertex*);
-    static void topo_sort(Graph*, std::list<vertex*>*);
+    static void topo_sort(Graph*, std::list<vertex*>*, vertex*);
 
 public:
     typedef std::map<int, vertex *> vertex_map;
     vertex_map graph;
-    void add_vertex(const int);
-    void add_edge(const int from, const int to, double cost);
+    void add_vertex(const int, double, bool is_reg = false);
+    void add_edge(const int from, const int to, double cost = 0.0);
     static double critical_path(Graph*);
 };
 #endif /* graph_hpp */

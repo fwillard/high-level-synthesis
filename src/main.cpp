@@ -12,18 +12,45 @@ int main(){
 //    p.parse(testfile);
   
     Graph g;
-    for (int i = 1; i < 10; i++) {
-        g.add_vertex(i);
-    }
-    g.add_edge(1, 4, 1.5);
-    g.add_edge(3, 4, 1);
-    g.add_edge(4, 5, 7);
-    g.add_edge(5, 6, 4);
-    g.add_edge(3, 6, 1);
-    g.add_edge(9, 6, 10);
-    g.add_edge(2, 9, 3);
-    g.add_edge(9, 8, 2);
-    g.add_edge(6, 7, 6);
+    g.add_vertex(0, 0);
+    g.add_vertex(1, 8);
+    g.add_vertex(2, 8);
+    g.add_vertex(3, 8);
+    g.add_vertex(4, 11, true);
+    g.add_vertex(5, 11, true);
+    g.add_vertex(6, 11, true);
+    g.add_vertex(7, 7);
+    g.add_vertex(8, 7);
+    g.add_vertex(9, 12);
+    g.add_vertex(10, 7);
+    g.add_vertex(11, 11, true);
+    g.add_vertex(12, 0);
+    
+    //nop
+    g.add_edge(0, 1);
+    g.add_edge(0, 4);
+    g.add_edge(0, 5);
+    g.add_edge(0, 9);
+    g.add_edge(0, 6);
+    g.add_edge(0, 3);
+    g.add_edge(0, 11);
+    
+    g.add_edge(1, 4);
+    g.add_edge(5, 1);
+    g.add_edge(2, 5);
+    g.add_edge(6, 2);
+    g.add_edge(3, 6);
+    g.add_edge(10, 3);
+    g.add_edge(4, 8);
+    g.add_edge(5, 7);
+    g.add_edge(4, 7);
+    g.add_edge(5, 8);
+    g.add_edge(6, 9);
+    g.add_edge(6, 11);
+    g.add_edge(8, 10);
+    g.add_edge(9, 10);
+    g.add_edge(7, 12);
+    g.add_edge(11, 12);
     
     double max = Graph::critical_path(&g);
     printf("Critical Path : %.3lf ns\n", max);
