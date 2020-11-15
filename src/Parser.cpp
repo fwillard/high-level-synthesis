@@ -1,8 +1,7 @@
 #include "Parser.hpp"
 
 Parser::Parser(){
-//    this->tokens = {};
-//    this->components = {};
+
 }
 
 Parser::~Parser(){
@@ -64,8 +63,8 @@ bool Parser::generateComponents(){
     this->components.clear(); 
 
     //generate inop and ouop
-    this->components.insert({0,Component("INOP",Component::NONE,false,1,0)});
-    this->components.insert({1,Component("OUOP",Component::NONE,false,1,1)});
+    this->components.insert({0,Component("INOP",Component::REG,false,1,0)});
+    this->components.insert({1,Component("OUOP",Component::REG,false,1,1)});
 
     int id_count = 2;
 
@@ -165,7 +164,7 @@ bool Parser::generateComponents(){
                         //TODO throw error for unknown wire/output
                     }
 
-                    if(components.at(output_index).type <= 4 && components.at(output_index).type > 1){ //if it is a wire/out/reg
+                    if(components.at(output_index).type <= 4 && components.at(output_index).type >= 2){ //if it is a wire/out/reg
                         components.at(output_index).inputs.push_back(current_component.id);
                     }
                     current_component.output = output_index;
@@ -241,7 +240,32 @@ bool Parser::generateComponents(){
 
                //multiplexer
                 break;
-            default:        //error: unknown operator
+            default:        //handle assignment
+                if(line.size() != 3){
+                    return false;
+                    //Throw error, incorrect assignment syntax
+                }          
+
+                arg0 = line.at(0);
+                arg1 = line.at(2);
+
+                if(!is_number(arg0) && !is_number(arg1)){
+                    output_index = index_by_name(arg0);
+                    index_1 = index_by_name(arg1);
+
+                    if(index_1 < 0 || output_index < 0){
+                        return false;
+                        //TODO throw error for unknown wire/input
+                    }
+
+                    this->components.at(output_index).inputs.push_back(index_1);
+                    this->components.at(index_1).output = output_index;
+                }
+                else{
+                    return false;
+                    //TODO throw error, unknown syntax
+                }
+
                 break;
         }
     }
@@ -290,15 +314,17 @@ int Parser::generate_type(const vector<string> &line){
 }
 
 void Parser::print_components(){
-    Component *current;
     string types[] = {"NONE", "INPUT", "OUTPUT", "WIRE", "REG", "ADD", "SUB", "MUL", "SHR", "SHL", "DIV", "MOD", "INC", "DEC", "MUX2x1", "COMP", "COMP", "COMP"};
 
-    for(int i = 0; i< this->components.size(); i++){
-        current = &this->components.at(i);
-        cout << current->id << "  |  " << current->name << "  |  " << types[current->type] << "  |  " << current->sign << "  |  " << current->datawidth;
-        cout << "  |  (" << this->components.at(current->output).name << " | ";
-        for(int i=0; i<current->inputs.size();i++){
-            cout << this->components.at(current->inputs.at(i)).name << " ";
+    map<int, Component>::iterator it;
+
+    cout << this->components.size();
+
+    for( it = this->components.begin(); it != this->components.end(); it++ ){
+        cout << it->second.id << "  |  " << it->second.name << "  |  " << types[it->second.type] << "  |  " << it->second.sign << "  |  " << it->second.datawidth;
+        cout << "  |  (" << this->components.at(it->second.output).name << " | ";
+        for(int i=0; i<it->second.inputs.size();i++){
+            cout << this->components.at(it->second.inputs.at(i)).name << " ";
         }
         cout << ")\n";
     }
@@ -319,4 +345,24 @@ bool Parser::is_number(string str){
     }
 
     return true;
+}
+
+Graph Parser::get_graph(){
+    Graph g;
+
+    map<int, Component>::iterator it;
+
+    //add all verticies
+    for ( it = this->components.begin(); it != this->components.end(); it++ ){
+        g.add_vertex(it->first, this->weights.at(make_pair(it->second.type,it->second.datawidth)), it->second.type == Component::REG); 
+    }
+
+    //add all edges (look at inputs only), graph is directed
+    for ( it = this->components.begin(); it != this->components.end(); it++ ){
+        for(int i = 0; i < it->second.inputs.size(); i++){
+            g.add_edge(it->first,it->second.inputs.at(i));
+        }
+    }
+
+    return g;
 }

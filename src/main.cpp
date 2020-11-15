@@ -6,7 +6,7 @@
 using namespace std;
 
 int main(){
-    string testfile = "assignment_2_circuits/574a_circuit5.txt";
+    string testfile = "assignment_2_circuits/474a_circuit1.txt";
 
     Parser p = Parser();
     if( !p.parse(testfile)){
