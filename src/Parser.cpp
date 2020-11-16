@@ -118,7 +118,7 @@ bool Parser::generateComponents(){
                     this->components.at(1).datawidth = current_component.datawidth;
                     this->components.at(1).sign = current_component.sign;   
 
-                    current_component.output = 1;                 
+                    current_component.outputs.push_back(1);                 
                 }
                 
 
@@ -167,7 +167,7 @@ bool Parser::generateComponents(){
                     if(components.at(output_index).type <= 4 && components.at(output_index).type >= 2){ //if it is a wire/out/reg
                         components.at(output_index).inputs.push_back(current_component.id);
                     }
-                    current_component.output = output_index;
+                    current_component.outputs.push_back(output_index);
                 }
                 else{
                     return false;
@@ -183,7 +183,7 @@ bool Parser::generateComponents(){
                         //TODO throw error for unknown wire/input
                     }
                     if(components.at(index_1).type >= 1 || components.at(index_1).type <= 4 && components.at(index_1).type != 2){ //if it is a wire/out/reg
-                        components.at(index_1).output = current_component.id;
+                        components.at(index_1).outputs.push_back(current_component.id);
                     }
                     current_component.inputs.push_back(index_1);
                 }
@@ -201,7 +201,7 @@ bool Parser::generateComponents(){
                         //TODO throw error for unknown wire/input
                     }
                     if(components.at(index_2).type >= 1 || components.at(index_2).type <= 4 && components.at(index_2).type != 2){ //if it is a wire/out/reg
-                        components.at(index_2).output = current_component.id;
+                        components.at(index_2).outputs.push_back(current_component.id);
                     }
                     current_component.inputs.push_back(index_2);
                 }
@@ -221,7 +221,7 @@ bool Parser::generateComponents(){
                             //TODO throw error for unknown wire/input
                         }
                     if(components.at(index_3).type >= 1 || components.at(index_3).type <= 4 && components.at(index_3).type != 2){ //if it is a wire/out/reg
-                        components.at(index_3).output = current_component.id;
+                        components.at(index_3).outputs.push_back(current_component.id);
                     }                        
                         current_component.inputs.push_back(index_3);
                     }
@@ -258,7 +258,7 @@ bool Parser::generateComponents(){
                     }
 
                     this->components.at(output_index).inputs.push_back(index_1);
-                    this->components.at(index_1).output = output_index;
+                    this->components.at(index_1).outputs.push_back(output_index);
                 }
                 else{
                     return false;
@@ -323,8 +323,14 @@ void Parser::print_components(){
     for( it = this->components.begin(); it != this->components.end(); it++ ){
         
         cout << it->first << "  |  " << it->second.name << "  |  " << types[it->second.type] << "  |  " << it->second.sign << "  |  " << it->second.datawidth;
-        cout << "  |  (" << this->components.at(it->second.output).name << " | ";
-       // cout << it->second.output;
+        cout << "  |  (";
+
+        for(int i=0; i<it->second.outputs.size();i++){
+            cout << this->components.at(it->second.outputs.at(i)).name << " ";
+        }
+
+        cout << " | ";
+
         for(int i=0; i<it->second.inputs.size();i++){
             cout << this->components.at(it->second.inputs.at(i)).name << " ";
         }
@@ -368,11 +374,9 @@ Graph Parser::get_graph(){
 
     //add all edges (look at inputs only), graph is directed
     for ( it = this->components.begin(); it != this->components.end(); it++ ){
-       // for(int i = 0; i < it->second.inputs.size(); i++){
-       //     g.add_edge(it->first,it->second.inputs.at(i));
-        //}
-
-        g.add_edge(it->first,it->second.output);
+        for(int i = 0; i < it->second.outputs.size(); i++){
+            g.add_edge(it->first,it->second.outputs.at(i));
+        }
     }
 
     return g;

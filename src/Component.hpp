@@ -23,7 +23,7 @@ class Component{
 
 
         vector<int> inputs;
-        int output;
+        vector<int> outputs;
 }; 
 
 
