@@ -376,7 +376,8 @@ void Parser::print_components(){
     cout << left << setw(7) << "NAME" << "  |  ";
     cout << left << setw(6) << "TYPE" << "  |  ";
     cout << left << setw(4) << "SIGN" << "  |  ";
-    cout << left << setw(2) << "DW\n";
+    cout << left << setw(2) << "DW" << "  |  ";;
+    cout << "( Outputs | Inputs )\n";
     cout << setfill('_') << setw(75) << "";
     cout << setfill(' ');
     cout << "\n";
