@@ -430,20 +430,23 @@ Graph Parser::get_graph(){
     //add all verticies
 
     for ( it = this->components.begin(); it != this->components.end(); it++ ){
-        if(it->second.type <=4 && it->second.type > 0){ //skip on input, output, wire 0 is const which is handled as INOP
-            g.add_vertex(it->first, 0 , false); 
+        if(it->first < 2){//inop and ouop
+            g.add_vertex(it->first, 0, true);
         }
-        else
-        {
-            if(it->second.type == Component::CONST){ //treat consts as inop (only difference is type = reg)
-                g.add_vertex(it->first, this->weights.at(make_pair(Component::REG,it->second.datawidth)), it->second.type == Component::REG); 
+        else{
+            if(it->second.type <4 && it->second.type > 0){ //skip on input, output, wire 0 is const which is handled as INOP
+                g.add_vertex(it->first, 0 , false);
             }
-            else {
-                g.add_vertex(it->first, this->weights.at(make_pair(it->second.type,it->second.datawidth)), it->second.type == Component::REG); 
+            else
+            {
+                if(it->second.type == Component::CONST){ //treat consts as inop (only difference is type = reg)
+                    g.add_vertex(it->first, this->weights.at(make_pair(Component::REG,it->second.datawidth)), it->second.type == Component::REG);
+                }
+                else {
+                    g.add_vertex(it->first, this->weights.at(make_pair(it->second.type,it->second.datawidth)), it->second.type == Component::REG);
+                }
             }
         }
-        
-        
     }
 
     //add all edges (look at outputs only), graph is directed
