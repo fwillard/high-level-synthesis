@@ -3,18 +3,28 @@
 #include "graph.hpp"
 #include <iostream>
 
+
 using namespace std;
+bool checkFileExists(char file[]);
 
-int main(int argc, char *argv[]){
-
-    string testfile = "assignment_2_circuits/574a_circuit6.txt";
-
-    if(argc > 1){
-        testfile = argv[1];
-    }
+int main(int argc, char *argv[])
+{
+	// check that 2 arguments are given
+	if (argc != 3) {
+		std::cout << "Warning: " << \
+			"2 arguments are required!" << std::endl;
+		return -1;
+	}
+	// check that input file exists
+	if (!checkFileExists(argv[1])) {
+		std::cout << "Warning: "  << \
+			"File "  << argv[1]  << \
+			" does not exist." << std::endl;
+		return -1;
+	}
 
     Parser p = Parser();
-    p.parse(testfile);
+    p.parse(argv[1]);
 
     Graph g = p.get_graph();
     double max = Graph::critical_path(&g);
@@ -66,4 +76,13 @@ int main(int argc, char *argv[]){
 //    printf("Critical Path : %.3lf ns\n", max);
 
 return 0;
+}
+
+bool checkFileExists(char file[])
+{
+	std::fstream fileStream;
+	fileStream.open(file);
+	bool returnValue = !fileStream.fail();
+	fileStream.close();
+	return returnValue;
 }

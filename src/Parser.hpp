@@ -26,6 +26,7 @@ class Parser{
         Graph get_graph();
         
         //Public Variables
+        map<int,Component> components;
                 
     private:
         //HelperFunctions
@@ -40,7 +41,7 @@ class Parser{
 
         //Private Variables
         vector<vector<string> > tokens;
-        map<int,Component> components;
+        
 
         //Weights lookup table
         map<pair<Component::component_type,int>, double> weights = {

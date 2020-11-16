@@ -85,7 +85,10 @@ bool Parser::generateComponents(){
         int width, output_index, index_1, index_2, index_3, pos;
         vector<Component> consts;
         switch(current_type){
-            case 1 ... 4:   //input, output, wire, reg' (Doesnt address input or output)
+            case 1:
+            case 2:
+            case 3:
+            case 4:   //input, output, wire, reg' (Doesnt address input or output)
                 current_component = Component();
                 tmp = Component();
 
@@ -154,7 +157,19 @@ bool Parser::generateComponents(){
                     }
 
                 break;
-            case 5 ... 17:  //comparitor
+            case 5:
+			case 6:
+			case 7:
+			case 8:
+			case 9:
+			case 10:
+			case 11:
+			case 12:
+			case 13:
+			case 14:
+			case 15:
+			case 16:
+			case 17:  
                 arg0 =    line.at(0);
                 arg1 =    line.at(2);
                 arg2 =    line.at(4);
@@ -355,12 +370,24 @@ void Parser::print_components(){
 
     map<int, Component>::iterator it;
 
+    //create title block
+           
+    cout << left << setw(2) << "ID" << "  |  "; 
+    cout << left << setw(7) << "NAME" << "  |  ";
+    cout << left << setw(6) << "TYPE" << "  |  ";
+    cout << left << setw(4) << "SIGN" << "  |  ";
+    cout << left << setw(2) << "DW\n";
+    cout << setfill('_') << setw(75) << "";
+    cout << setfill(' ');
+    cout << "\n";
+
+    //output all components
     for( it = this->components.begin(); it != this->components.end(); it++ ){
         
         cout << left << setw(2) << it->first << "  |  "; 
         cout << left << setw(7) << it->second.name << "  |  " ;
         cout << left << setw(6) << types[it->second.type] << "  |  ";
-        cout << left << setw(1) << it->second.sign << "  |  ";
+        cout << left << setw(4) << it->second.sign << "  |  ";
         cout << left << setw(2) << it->second.datawidth;
         cout << "  |  (";
 
