@@ -382,14 +382,14 @@ Graph Parser::get_graph(){
     //add all verticies
 
     for ( it = this->components.begin(); it != this->components.end(); it++ ){
-        if(it->second.type <=3){ //skip on none, input, output
+        if(it->second.type <=4){ //skip on none, input, output, wire
             continue;
         }
         g.add_vertex(it->first, this->weights.at(make_pair(it->second.type,it->second.datawidth)), it->second.type == Component::REG); 
         
     }
 
-    //add all edges (look at inputs only), graph is directed
+    //add all edges (look at outputs only), graph is directed
     for ( it = this->components.begin(); it != this->components.end(); it++ ){
         for(int i = 0; i < it->second.outputs.size(); i++){
             g.add_edge(it->first,it->second.outputs.at(i));
