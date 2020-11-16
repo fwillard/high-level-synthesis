@@ -1,0 +1,5 @@
+input Int1 a, b
+
+output Int1 c
+
+c = a + b
