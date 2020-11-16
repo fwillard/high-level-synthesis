@@ -388,7 +388,7 @@ Graph Parser::get_graph(){
         }
         else
         {
-             g.add_vertex(it->first, this->weights.at(make_pair(it->second.type,it->second.datawidth)), it->second.type == Component::REG); 
+            g.add_vertex(it->first, this->weights.at(make_pair(it->second.type,it->second.datawidth)), it->second.type == Component::REG); 
         //     cout << it->second.name << " | " << this->weights.at(make_pair(it->second.type,it->second.datawidth)) << "\n";
         }
         

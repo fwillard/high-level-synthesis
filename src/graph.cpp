@@ -26,6 +26,7 @@ void Graph::add_edge(const int from, const int to, double weight){
 }
 
 void Graph::topo_sort(Graph *g, std::list<vertex*> *l, vertex* u){
+    l->clear();
     for(auto u : g->graph){
         u.second->color = WHITE;
     }
@@ -33,7 +34,6 @@ void Graph::topo_sort(Graph *g, std::list<vertex*> *l, vertex* u){
 }
 
 void Graph::topo_vist(Graph *g, std::list<vertex*> *l, vertex* u){
-    l->clear();
     u->color = GRAY;
     for(auto e : u->adjacent){
         vertex *v = e.second;
