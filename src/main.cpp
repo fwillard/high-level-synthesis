@@ -117,7 +117,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 
 			if (tempComponents.size() != 1)
 			{
-				ss << " [" << tempComponents.size() - 1 << ":0] ";
+				ss << " [" << it->second.datawidth - 1 << ":0] ";
 			}
 
 			ss << it->second.name.c_str() << ";" << std::endl;
@@ -136,7 +136,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 		if (strcmp(types[it->second.type].c_str(), "OUTPUT") == 0)
 		{
 			ss << "\t" << "output";
-			ss << " [" << tempComponents.size() - 1 << ":0]";
+			ss << " [" << it->second.datawidth - 1 << ":0]";
 			ss << " " << it->second.name.c_str() << ";" << std::endl;
 		}
 	}
@@ -154,9 +154,9 @@ void writeVerilog(char inputFile[], char outputFile[])
 				ss << " signed";
 			}
 
-			if (tempComponents.size() != 1)
+			if (it->second.datawidth != 1)
 			{
-				ss << " [" << tempComponents.size() - 1 << ":0]";
+				ss << " [" << it->second.datawidth  - 1 << ":0]";
 			}
 
 			ss << " " << it->second.name.c_str() << ";" << std::endl;
