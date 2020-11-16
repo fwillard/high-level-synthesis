@@ -86,7 +86,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// have all the outputs, inputs, wires shown in the module parameters
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if ((types[it->second.type] != "WIRE") && (types[it->second.type] != "REG"))
+		if (it->second.type == Component::INPUT || it->second.type == Component::OUTPUT)
 		{
 			ss << it->second.name.c_str();
 
