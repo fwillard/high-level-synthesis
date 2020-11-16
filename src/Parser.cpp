@@ -80,13 +80,10 @@ bool Parser::generateComponents(){
 
         int current_type = generate_type(line);
 
-        cout << current_type << "\n";
-
-
         //Declare local variables used in switch statemeelement at indexnt 
         string width_str, namestr, arg0, arg1, arg2, arg3;
         int width, output_index, index_1, index_2, index_3, pos;
-        Component *point = NULL;
+        vector<Component> consts;
         switch(current_type){
             case 1 ... 4:   //input, output, wire, reg' (Doesnt address input or output)
                 current_component = Component();
@@ -182,8 +179,8 @@ bool Parser::generateComponents(){
                     current_component.outputs.push_back(output_index);
                 }
                 else{
-                    current_component.inputs.push_back(0); //inop is one of the inputs
-                    this->components.at(0).outputs.push_back(current_component.id);
+                    cout << "ERROR: Output can not be a constant";
+                    return false;
                 }
 
                 //handle first argument
@@ -201,8 +198,13 @@ bool Parser::generateComponents(){
                     current_component.inputs.push_back(index_1);
                 }
                 else{ //handle constants
-                    current_component.inputs.push_back(0); //inop is one of the inputs
-                    this->components.at(0).outputs.push_back(current_component.id);
+                    //add a new constant component, handles as INOP by graph
+                    Component tmp = Component("Node_"+to_string(id_count), Component::CONST, current_component.sign, current_component.datawidth,id_count);
+                    id_count++;
+                    tmp.outputs.push_back(current_component.id);
+
+                    current_component.inputs.push_back(tmp.id);
+                    consts.push_back(tmp);
                 }
                 
                 //handle second argument
@@ -220,8 +222,12 @@ bool Parser::generateComponents(){
                     current_component.inputs.push_back(index_2);
                 }
                 else{ //handle constants
-                    current_component.inputs.push_back(0); //inop is one of the inputs
-                    this->components.at(0).outputs.push_back(current_component.id);
+                    Component tmp = Component("Node_"+to_string(id_count), Component::CONST, current_component.sign, current_component.datawidth,id_count);
+                    id_count++;
+                    tmp.outputs.push_back(current_component.id);
+
+                    current_component.inputs.push_back(tmp.id);
+                    consts.push_back(tmp);
                 }
 
                 if(current_type == 14){ //third input for mux
@@ -241,8 +247,12 @@ bool Parser::generateComponents(){
                         current_component.inputs.push_back(index_3);
                     }
                     else{ //handle constants
-                        current_component.inputs.push_back(0); //inop is one of the inputs
-                        this->components.at(0).outputs.push_back(current_component.id);
+                        Component tmp = Component("Node_"+to_string(id_count), Component::CONST, current_component.sign, current_component.datawidth,id_count);
+                        id_count++;
+                        tmp.outputs.push_back(current_component.id);
+
+                        current_component.inputs.push_back(tmp.id);
+                        consts.push_back(tmp);
                     }      
                 }       
 
@@ -250,6 +260,13 @@ bool Parser::generateComponents(){
                 current_component.name = "Node_" + to_string(current_component.id);
                 current_component.datawidth = this->components.at(current_component.inputs.at(0)).datawidth;
                 current_component.sign = this->components.at(current_component.inputs.at(0)).sign;
+
+                for(int i =0; i<consts.size(); i++){ //add all consts that were generated as inputs
+                    consts.at(i).datawidth = current_component.datawidth;
+                    consts.at(i).sign = current_component.sign;
+                    this->components.insert({consts.at(i) .id, consts.at(i) });
+                }
+                consts.clear(); //clear for next loop
 
                 this->components.insert({current_component.id,current_component});
 
@@ -309,7 +326,7 @@ int Parser::index_by_name(const string name){
 }
 
 int Parser::generate_type(const vector<string> &line){
-    vector<string> types = {"none","input","output","wire","register","+","-","*",">>","<<","/","%","++","--","?","<",">","=="};
+    vector<string> types = {"const","input","output","wire","register","+","-","*",">>","<<","/","%","++","--","?","<",">","=="};
     //                 NONE, INPUT, OUTPUT, WIRE, REG, ADD, SUB, MUL, MUX2x1, SHR, SHL, DIV, MOD, INC, DEC, COMP
 
     string start = line.at(0); //The first token in the line
@@ -334,7 +351,7 @@ int Parser::generate_type(const vector<string> &line){
 }
 
 void Parser::print_components(){
-    string types[] = {"NONE", "INPUT", "OUTPUT", "WIRE", "REG", "ADD", "SUB", "MUL", "SHR", "SHL", "DIV", "MOD", "INC", "DEC", "MUX2x1", "COMP", "COMP", "COMP"};
+    string types[] = {"CONST", "INPUT", "OUTPUT", "WIRE", "REG", "ADD", "SUB", "MUL", "SHR", "SHL", "DIV", "MOD", "INC", "DEC", "MUX2x1", "COMP", "COMP", "COMP"};
 
     map<int, Component>::iterator it;
 
@@ -382,14 +399,17 @@ Graph Parser::get_graph(){
     //add all verticies
 
     for ( it = this->components.begin(); it != this->components.end(); it++ ){
-        if(it->second.type <=4){ //skip on none, input, output, wire
+        if(it->second.type <=4 && it->second.type > 0){ //skip on input, output, wire 0 is const which is handled as INOP
             g.add_vertex(it->first, 0 , false); 
-        //    cout << it->second.name << " | " << 0 <<"\n";
         }
         else
         {
-            g.add_vertex(it->first, this->weights.at(make_pair(it->second.type,it->second.datawidth)), it->second.type == Component::REG); 
-        //     cout << it->second.name << " | " << this->weights.at(make_pair(it->second.type,it->second.datawidth)) << "\n";
+            if(it->second.type == Component::CONST){ //treat consts as inop (only difference is type = reg)
+                g.add_vertex(it->first, this->weights.at(make_pair(Component::REG,it->second.datawidth)), it->second.type == Component::REG); 
+            }
+            else {
+                g.add_vertex(it->first, this->weights.at(make_pair(it->second.type,it->second.datawidth)), it->second.type == Component::REG); 
+            }
         }
         
         
@@ -398,7 +418,7 @@ Graph Parser::get_graph(){
     //add all edges (look at outputs only), graph is directed
     for ( it = this->components.begin(); it != this->components.end(); it++ ){
         for(int i = 0; i < it->second.outputs.size(); i++){
-            g.add_edge(it->first,it->second.outputs.at(i));
+            g.add_edge(it->second.id,it->second.outputs.at(i));
         }
     }
 
