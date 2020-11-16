@@ -80,6 +80,8 @@ bool Parser::generateComponents(){
 
         int current_type = generate_type(line);
 
+        cout << current_type << "\n";
+
 
         //Declare local variables used in switch statemeelement at indexnt 
         string width_str, namestr, arg0, arg1, arg2, arg3;
@@ -108,18 +110,6 @@ bool Parser::generateComponents(){
                 //Datawidth
                 //TODO: Add error checking to number parsing
                 current_component.datawidth = extract_int(width_str);
-                if(current_type == 1){
-                    this->components.at(0).datawidth = current_component.datawidth;
-                    this->components.at(0).sign = current_component.sign;
-
-                    current_component.inputs.push_back(0);
-                }
-                else if(current_type == 2){
-                    this->components.at(1).datawidth = current_component.datawidth;
-                    this->components.at(1).sign = current_component.sign;   
-
-                    current_component.outputs.push_back(1);                 
-                }
                 
 
                 //Type
@@ -142,8 +132,29 @@ bool Parser::generateComponents(){
                     tmp.id = id_count;
                     id_count++;
 
-                    this->components.insert({tmp.id,tmp});
-                }
+
+                    if(current_type == Component::INPUT){
+                        if(this->components.at(0).datawidth < tmp.datawidth)
+                            this->components.at(0).datawidth = tmp.datawidth;
+                        if(!this->components.at(0).sign && tmp.sign)
+                            this->components.at(0).sign = true;
+                        this->components.at(0).outputs.push_back(tmp.id);
+
+                        tmp.inputs.push_back(0);
+                    
+                    }
+                    else if(current_type == Component::OUTPUT){
+                        if(this->components.at(1).datawidth < tmp.datawidth)
+                            this->components.at(1).datawidth = tmp.datawidth;
+                        if(!this->components.at(1).sign && tmp.sign)
+                            this->components.at(1).sign = true; 
+                        this->components.at(1).inputs.push_back(tmp.id);
+
+                        tmp.outputs.push_back(1);                 
+                    }
+
+                        this->components.insert({tmp.id,tmp});
+                    }
 
                 break;
             case 5 ... 17:  //comparitor
@@ -160,6 +171,7 @@ bool Parser::generateComponents(){
                     output_index = index_by_name(arg0);
 
                     if(output_index < 0){
+                        cout << "\n\nERROR 1\n\n";
                         return false;
                         //TODO throw error for unknown wire/output
                     }
@@ -170,8 +182,8 @@ bool Parser::generateComponents(){
                     current_component.outputs.push_back(output_index);
                 }
                 else{
-                    return false;
-                    //TODO throw error, unknown syntax
+                    current_component.inputs.push_back(0); //inop is one of the inputs
+                    this->components.at(0).outputs.push_back(current_component.id);
                 }
 
                 //handle first argument
@@ -179,6 +191,7 @@ bool Parser::generateComponents(){
                     index_1 = index_by_name(arg1);
 
                     if(index_1 < 0){
+                        cout << "\n\nERROR 3\n\n";
                         return false;
                         //TODO throw error for unknown wire/input
                     }
@@ -187,9 +200,9 @@ bool Parser::generateComponents(){
                     }
                     current_component.inputs.push_back(index_1);
                 }
-                else{
-                    return false;
-                    //TODO throw error, unknown syntax
+                else{ //handle constants
+                    current_component.inputs.push_back(0); //inop is one of the inputs
+                    this->components.at(0).outputs.push_back(current_component.id);
                 }
                 
                 //handle second argument
@@ -197,6 +210,7 @@ bool Parser::generateComponents(){
                     index_2 = index_by_name(arg2);
 
                     if(index_2 < 0){
+                        cout << "\n\nERROR 5\n\n";
                         return false;
                         //TODO throw error for unknown wire/input
                     }
@@ -205,9 +219,9 @@ bool Parser::generateComponents(){
                     }
                     current_component.inputs.push_back(index_2);
                 }
-                else{
-                    return false;
-                    //TODO throw error, unknown syntax
+                else{ //handle constants
+                    current_component.inputs.push_back(0); //inop is one of the inputs
+                    this->components.at(0).outputs.push_back(current_component.id);
                 }
 
                 if(current_type == 14){ //third input for mux
@@ -217,6 +231,7 @@ bool Parser::generateComponents(){
                         index_3 = index_by_name(arg3);
 
                         if(index_3 < 0){
+                            cout << "\n\nERROR 7\n\n";
                             return false;
                             //TODO throw error for unknown wire/input
                         }
@@ -225,9 +240,9 @@ bool Parser::generateComponents(){
                     }                        
                         current_component.inputs.push_back(index_3);
                     }
-                    else{
-                        return false;
-                        //TODO throw error, unknown syntax
+                    else{ //handle constants
+                        current_component.inputs.push_back(0); //inop is one of the inputs
+                        this->components.at(0).outputs.push_back(current_component.id);
                     }      
                 }       
 
@@ -241,6 +256,7 @@ bool Parser::generateComponents(){
                 break;
             default:        //handle assignment
                 if(line.size() != 3){
+                    cout << "\n\nERROR 9\n\n";
                     return false;
                     //Throw error, incorrect assignment syntax
                 }          
@@ -253,6 +269,7 @@ bool Parser::generateComponents(){
                     index_1 = index_by_name(arg1);
 
                     if(index_1 < 0 || output_index < 0){
+                        cout << "\n\nERROR 10\n\n";
                         return false;
                         //TODO throw error for unknown wire/input
                     }
@@ -261,6 +278,7 @@ bool Parser::generateComponents(){
                     this->components.at(index_1).outputs.push_back(output_index);
                 }
                 else{
+                    cout << "\n\nERROR 11\n\n";
                     return false;
                     //TODO throw error, unknown syntax
                 }
@@ -336,7 +354,6 @@ void Parser::print_components(){
         }
         cout << ")\n";
     }
-
     cout << "\n\n";
 }
 
