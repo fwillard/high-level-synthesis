@@ -19,7 +19,7 @@ class Component{
         component_type type = NONE;
         bool sign = false;
         int datawidth = -1;
-        int id = -1;
+        int id;
 
 
         vector<int> inputs;

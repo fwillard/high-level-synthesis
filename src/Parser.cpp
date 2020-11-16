@@ -238,7 +238,6 @@ bool Parser::generateComponents(){
 
                 this->components.insert({current_component.id,current_component});
 
-               //multiplexer
                 break;
             default:        //handle assignment
                 if(line.size() != 3){
@@ -310,6 +309,9 @@ int Parser::generate_type(const vector<string> &line){
     }     
 
     //Throw an error, the line is misformatted or uses an invalid operator
+    if(tmp_type >15){
+        tmp_type = 15;
+    }
     return tmp_type;
 }
 
@@ -318,16 +320,18 @@ void Parser::print_components(){
 
     map<int, Component>::iterator it;
 
-    cout << this->components.size();
-
     for( it = this->components.begin(); it != this->components.end(); it++ ){
-        cout << it->second.id << "  |  " << it->second.name << "  |  " << types[it->second.type] << "  |  " << it->second.sign << "  |  " << it->second.datawidth;
+        
+        cout << it->first << "  |  " << it->second.name << "  |  " << types[it->second.type] << "  |  " << it->second.sign << "  |  " << it->second.datawidth;
         cout << "  |  (" << this->components.at(it->second.output).name << " | ";
+       // cout << it->second.output;
         for(int i=0; i<it->second.inputs.size();i++){
             cout << this->components.at(it->second.inputs.at(i)).name << " ";
         }
         cout << ")\n";
     }
+
+    cout << "\n\n";
 }
 
 int Parser::extract_int(const string str){
@@ -353,15 +357,22 @@ Graph Parser::get_graph(){
     map<int, Component>::iterator it;
 
     //add all verticies
+
     for ( it = this->components.begin(); it != this->components.end(); it++ ){
+        if(it->second.type <=3){ //skip on none, input, output
+            continue;
+        }
         g.add_vertex(it->first, this->weights.at(make_pair(it->second.type,it->second.datawidth)), it->second.type == Component::REG); 
+        
     }
 
     //add all edges (look at inputs only), graph is directed
     for ( it = this->components.begin(); it != this->components.end(); it++ ){
-        for(int i = 0; i < it->second.inputs.size(); i++){
-            g.add_edge(it->first,it->second.inputs.at(i));
-        }
+       // for(int i = 0; i < it->second.inputs.size(); i++){
+       //     g.add_edge(it->first,it->second.inputs.at(i));
+        //}
+
+        g.add_edge(it->first,it->second.output);
     }
 
     return g;

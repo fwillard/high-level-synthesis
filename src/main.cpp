@@ -12,6 +12,10 @@ int main(){
     if( !p.parse(testfile)){
         cout << "There was an error parsing the provided file";
     }
+
+    Graph g = p.get_graph();
+    double max = Graph::critical_path(&g);
+    printf("Critical Path : %.3lf ns\n", max);
 /*    
     //THIS IS A TEST GRAPH FOR CRITICAL PATH CALCULATION
     Graph g;
