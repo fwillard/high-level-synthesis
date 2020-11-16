@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 	// check that 2 arguments are given
 	if (argc != 3) {
 		std::cout << "Warning: " << \
-			"2 arguments are required!" << std::endl;
+			"Argument Format: dpgen netlistFile verilogFile" << std::endl;
 		return -1;
 	}
 	// check that input file exists
