@@ -153,7 +153,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 			ss << "\t" << "INPUT";
 			if (it->second.sign)
 			{
-				ss << " SIGN";
+				ss << " SIGNED";
 			}
 
 			if (tempComponents.size() != 1)
@@ -179,42 +179,42 @@ void writeVerilog(char inputFile[], char outputFile[])
 	}
 
 	ss << std::endl;
-	/*
+	
 	// wires
-	for (const auto& tempVar : circuitVariables)
+	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if (strcmp(tempVar.type.c_str(), "wire") == 0)
+		if (strcmp(types[it->second.type].c_str(), "WIRE") == 0)
 		{
-			ss << "\t" << "wire";
-			if (tempVar.sign)
+			ss << "\t" << "WIRE";
+			if (it->second.sign)
 			{
-				ss << " signed";
+				ss << " SIGNED";
 			}
 
-			if (tempVar.size != 1)
+			if (tempComponents.size() != 1)
 			{
-				ss << " [" << tempVar.size - 1 << ":0]";
+				ss << " [" << tempComponents.size() - 1 << ":0]";
 			}
 
-			ss << " " << tempVar.name.c_str() << ";" << std::endl;
+			ss << " " << it->second.name.c_str() << ";" << std::endl;
 		}
 	}
 
 	ss << std::endl;
 
 	// registers
-	for (const auto& tempVar : circuitVariables)
+	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if (strcmp(tempVar.type.c_str(), "register") == 0) {
-			ss << "\t" << "reg";
-			ss << " [" << tempVar.size - 1 << ":0]";
-			ss << " " << tempVar.name.c_str() << ";" << std::endl;
+		if (strcmp(types[it->second.type].c_str(), "REG") == 0) {
+			ss << "\t" << "REG";
+			ss << " [" << tempComponents.size() - 1 << ":0]";
+			ss << " " << it->second.name.c_str() << ";" << std::endl;
 		}
 
 	}
 
 	ss << std::endl;
-
+	/*
 	for (const module& mod : circuitModules)
 	{
 		// if any input OR output is signed, the module needs to be signed.
