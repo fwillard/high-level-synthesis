@@ -103,12 +103,16 @@ void writeVerilog(char inputFile[], char outputFile[])
 	ss << "\t" << "input Clk, Rst;" << std::endl;
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
+        if(it->second.name == "INOP" || it->second.name == "OUOP"){
+            continue;
+        }
+
 		if (strcmp(types[it->second.type].c_str(), "INPUT") == 0)
 		{
-			ss << "\t" << "INPUT";
+			ss << "\t" << "input";
 			if (it->second.sign)
 			{
-				ss << " SIGNED";
+				ss << " signed";
 			}
 
 			if (tempComponents.size() != 1)
@@ -125,9 +129,13 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// outputs
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
+        if(it->second.name == "INOP" || it->second.name == "OUOP"){
+            continue;
+        }
+
 		if (strcmp(types[it->second.type].c_str(), "OUTPUT") == 0)
 		{
-			ss << "\t" << "OUTPUT";
+			ss << "\t" << "output";
 			ss << " [" << tempComponents.size() - 1 << ":0]";
 			ss << " " << it->second.name.c_str() << ";" << std::endl;
 		}
@@ -140,10 +148,10 @@ void writeVerilog(char inputFile[], char outputFile[])
 	{
 		if (strcmp(types[it->second.type].c_str(), "WIRE") == 0)
 		{
-			ss << "\t" << "WIRE";
+			ss << "\t" << "wire";
 			if (it->second.sign)
 			{
-				ss << " SIGNED";
+				ss << " signed";
 			}
 
 			if (tempComponents.size() != 1)
@@ -160,6 +168,10 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// registers
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
+        if(it->second.name == "INOP" || it->second.name == "OUOP"){
+            continue;
+        }
+
 		if (strcmp(types[it->second.type].c_str(), "REG") == 0) {
 			ss << "\t" << "REG";
 			ss << " [" << tempComponents.size() - 1 << ":0]";
