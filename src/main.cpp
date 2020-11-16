@@ -5,13 +5,16 @@
 
 using namespace std;
 
-int main(){
+int main(int argc, char *argv[]){
+
     string testfile = "assignment_2_circuits/574a_circuit6.txt";
 
-    Parser p = Parser();
-    if( !p.parse(testfile)){
-        cout << "There was an error parsing the provided file";
+    if(argc > 1){
+        testfile = argv[1];
     }
+
+    Parser p = Parser();
+    p.parse(testfile);
 
     Graph g = p.get_graph();
     double max = Graph::critical_path(&g);
@@ -61,4 +64,6 @@ int main(){
     */
     //double max = Graph::critical_path(&g);
 //    printf("Critical Path : %.3lf ns\n", max);
+
+return 0;
 }

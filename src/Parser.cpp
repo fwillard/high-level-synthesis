@@ -34,7 +34,7 @@ bool Parser::tokenize(const string filename){
     ifstream infile(filename);
 
     if(!infile){
-        return false;
+        throw ParserException("ERROR: Input file \"" + filename +"\" could not be found");
     }
 
     string token_string; 
@@ -168,9 +168,8 @@ bool Parser::generateComponents(){
                     output_index = index_by_name(arg0);
 
                     if(output_index < 0){
-                        cout << "\n\nERROR 1\n\n";
-                        return false;
-                        //TODO throw error for unknown wire/output
+                        //Throw error for unknown wire/output
+                        throw ParserException("ERROR: Unknown Wire or component Output: " + arg0);
                     }
 
                     if(components.at(output_index).type <= 4 && components.at(output_index).type >= 2){ //if it is a wire/out/reg
@@ -179,8 +178,7 @@ bool Parser::generateComponents(){
                     current_component.outputs.push_back(output_index);
                 }
                 else{
-                    cout << "ERROR: Output can not be a constant";
-                    return false;
+                    throw ParserException("ERROR: Output cannot be assigned to a constant");
                 }
 
                 //handle first argument
@@ -188,9 +186,8 @@ bool Parser::generateComponents(){
                     index_1 = index_by_name(arg1);
 
                     if(index_1 < 0){
-                        cout << "\n\nERROR 3\n\n";
-                        return false;
-                        //TODO throw error for unknown wire/input
+                        //Throw error for unknown wire/input
+                        throw ParserException("ERROR: Unknown Wire or component Input: " + arg1);
                     }
                     if(components.at(index_1).type >= 1 || components.at(index_1).type <= 4 && components.at(index_1).type != 2){ //if it is a wire/out/reg
                         components.at(index_1).outputs.push_back(current_component.id);
@@ -212,9 +209,8 @@ bool Parser::generateComponents(){
                     index_2 = index_by_name(arg2);
 
                     if(index_2 < 0){
-                        cout << "\n\nERROR 5\n\n";
-                        return false;
-                        //TODO throw error for unknown wire/input
+                        //Throw error for unknown wire/input
+                        throw ParserException("ERROR: Unknown Wire or component Input: " + arg2);
                     }
                     if(components.at(index_2).type >= 1 || components.at(index_2).type <= 4 && components.at(index_2).type != 2){ //if it is a wire/out/reg
                         components.at(index_2).outputs.push_back(current_component.id);
@@ -237,9 +233,8 @@ bool Parser::generateComponents(){
                         index_3 = index_by_name(arg3);
 
                         if(index_3 < 0){
-                            cout << "\n\nERROR 7\n\n";
-                            return false;
-                            //TODO throw error for unknown wire/input
+                            //Throw error for unknown wire/input
+                            throw ParserException("ERROR: Unknown Wire or component Input: " + arg3);
                         }
                     if(components.at(index_3).type >= 1 || components.at(index_3).type <= 4 && components.at(index_3).type != 2){ //if it is a wire/out/reg
                         components.at(index_3).outputs.push_back(current_component.id);
@@ -272,11 +267,14 @@ bool Parser::generateComponents(){
 
                 break;
             default:        //handle assignment
-                if(line.size() != 3){
-                    cout << "\n\nERROR 9\n\n";
-                    return false;
-                    //Throw error, incorrect assignment syntax
-                }          
+                if(line.size() > 3){
+                    //Throw error for illigal syntax
+                    throw ParserException("ERROR: Illegal Assignment or Operator: " + line.at(3));
+                }  
+
+                if(line.size() < 3){
+                    throw ParserException("ERROR: Invalid number of arguments");
+                }        
 
                 arg0 = line.at(0);
                 arg1 = line.at(2);
@@ -285,19 +283,21 @@ bool Parser::generateComponents(){
                     output_index = index_by_name(arg0);
                     index_1 = index_by_name(arg1);
 
-                    if(index_1 < 0 || output_index < 0){
-                        cout << "\n\nERROR 10\n\n";
-                        return false;
-                        //TODO throw error for unknown wire/input
+                    if(index_1 < 0){
+                            //Throw error for unknown wire/input
+                            throw ParserException("ERROR: Unknown Wire or component: " + arg1);
+                    }
+
+                    if(output_index < 0){
+                            //Throw error for unknown wire/input
+                            throw ParserException("ERROR: Unknown Wire or component: " + arg0);
                     }
 
                     this->components.at(output_index).inputs.push_back(index_1);
                     this->components.at(index_1).outputs.push_back(output_index);
                 }
                 else{
-                    cout << "\n\nERROR 11\n\n";
-                    return false;
-                    //TODO throw error, unknown syntax
+                    throw ParserException("ERROR: Invalid assignment");
                 }
 
                 break;
@@ -357,7 +357,11 @@ void Parser::print_components(){
 
     for( it = this->components.begin(); it != this->components.end(); it++ ){
         
-        cout << it->first << "  |  " << it->second.name << "  |  " << types[it->second.type] << "  |  " << it->second.sign << "  |  " << it->second.datawidth;
+        cout << left << setw(2) << it->first << "  |  "; 
+        cout << left << setw(7) << it->second.name << "  |  " ;
+        cout << left << setw(6) << types[it->second.type] << "  |  ";
+        cout << left << setw(1) << it->second.sign << "  |  ";
+        cout << left << setw(2) << it->second.datawidth;
         cout << "  |  (";
 
         for(int i=0; i<it->second.outputs.size();i++){

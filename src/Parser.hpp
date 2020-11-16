@@ -3,12 +3,14 @@
 
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <string>
 #include <map>
 
+#include "ParserException.hpp"
 #include "Component.hpp"
 #include "graph.hpp"
 

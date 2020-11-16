@@ -8,6 +8,8 @@ set ( DPGEN_SOURCES
     Parser.hpp
     Component.cpp
     Component.hpp
+    ParserException.cpp
+    ParserException.hpp
     )
 
 #add_executable(dpgen main.cpp graph.hpp graph.cpp node.hpp node.cpp edge.hpp edge.cpp Parser.cpp Parser.hpp Component.cpp Component.hpp)
