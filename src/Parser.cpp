@@ -383,9 +383,15 @@ Graph Parser::get_graph(){
 
     for ( it = this->components.begin(); it != this->components.end(); it++ ){
         if(it->second.type <=4){ //skip on none, input, output, wire
-            continue;
+            g.add_vertex(it->first, 0 , false); 
+        //    cout << it->second.name << " | " << 0 <<"\n";
         }
-        g.add_vertex(it->first, this->weights.at(make_pair(it->second.type,it->second.datawidth)), it->second.type == Component::REG); 
+        else
+        {
+             g.add_vertex(it->first, this->weights.at(make_pair(it->second.type,it->second.datawidth)), it->second.type == Component::REG); 
+        //     cout << it->second.name << " | " << this->weights.at(make_pair(it->second.type,it->second.datawidth)) << "\n";
+        }
+        
         
     }
 
