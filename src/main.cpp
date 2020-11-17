@@ -128,7 +128,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 	{
 		if (it->second.type == Component::OUTPUT)
 		{
-			ss << "\t" << "output";
+			ss << "\t" << "output reg";
 			ss << " [" << it->second.datawidth - 1 << ":0]";
 			ss << " " << it->second.name.c_str() << ";" << std::endl;
 		}
@@ -161,7 +161,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// registers
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if (it->second.type == Component::REG && it->first >= 2) {
+		if ((it->second.type == Component::REG) && (it->first >= 2)) {
 			ss << "\t" << "REG";
 			ss << " [" << it->second.datawidth << ":0]";
 			ss << " " << it->second.name.c_str() << ";" << std::endl;
@@ -174,7 +174,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// modules
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if ((it->second.type != Component::REG ) && (it->second.type != Component::INPUT ) && (it->second.type != Component::OUTPUT )
+		if (/*(it->second.type != Component::REG ) &&*/ (it->second.type != Component::INPUT ) && (it->second.type != Component::OUTPUT )
 			&& (it->second.type != Component::WIRE ) && (it->second.type != Component::CONST ))
 		{
 			// make me pretty			
@@ -187,14 +187,25 @@ void writeVerilog(char inputFile[], char outputFile[])
 				ss << "S";
 			}
 			
-			ss << types[it->second.type] << " #(.DATAWIDTH(" << it->second.datawidth;
-			ss << ")) " << types[it->second.type] << "_" << it->first << "(";
+			if ((it->second.name != "INOP"))
+			{
+				ss << types[it->second.type] << " #(.DATAWIDTH(" << it->second.datawidth;
+				ss << ")) " << types[it->second.type] << "_" << it->first << "(";
+			}
 
 
 			// if MUX
-			if (it->second.type == Component::REG )
+			if (it->second.type == Component::MUX2x1 )
 			{
 
+				ss << tempComponents.at(it->second.inputs.at(1)).name << ", ";
+				ss << tempComponents.at(it->second.inputs.at(2)).name << ", ";
+				ss << tempComponents.at(it->second.inputs.at(0)).name << ", ";
+				// outputs
+				for (int i = 0; i < it->second.outputs.size(); i++)
+				{
+					ss << tempComponents.at(it->second.outputs.at(i)).name;
+				}
 			}
 			// if COMP
 			else if (it->second.type == Component::COMP )
@@ -245,11 +256,23 @@ void writeVerilog(char inputFile[], char outputFile[])
 
 			}
 			// if REG
-			else if (it->second.type == Component::REG)
+			else if ((it->second.type == Component::REG ) && (it->second.name != "INOP"))
 			{
+				// outputs
+				for (int i = 0; i < it->second.outputs.size(); i++)
+				{
+					ss << tempComponents.at(it->second.outputs.at(i)).name;
+				}
+				ss << ", Clk, Rst, ";
+				// inputs
+				for (int i = 0; i < it->second.inputs.size(); i++)
+				{
+					ss << tempComponents.at(it->second.inputs.at(i)).name;
+				}
 
+				
 			}
-			else
+			else if(it->second.name != "INOP")
 			{
 				// inputs
 				for (int i = 0; i < it->second.inputs.size(); i++)
@@ -263,7 +286,10 @@ void writeVerilog(char inputFile[], char outputFile[])
 				}
 			}
 
-			ss << "); " << std::endl;
+			if ((it->second.name != "INOP"))
+			{
+				ss << "); " << std::endl;
+			}
 
 		} // end if loop
 	}
