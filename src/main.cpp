@@ -172,40 +172,95 @@ void writeVerilog(char inputFile[], char outputFile[])
 	ss << std::endl;
 	
 	// modules
-	// need to mod this to start at the first item past wire to get to modules
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
 		if ((types[it->second.type] != "REG") && (types[it->second.type] != "input") && (types[it->second.type] != "output")
 			&& (types[it->second.type] != "wire") && (types[it->second.type] != "CONST"))
 		{
-
-			// if any input OR output is signed, the module needs to be signed.
-
+			// make me pretty			
 			ss << "\t";
 
+			// if any input OR output is signed, the module needs to be signed.
 			// prepend S to make module signed, unless if REG component
 			if ((it->second.sign = 1) && (types[it->second.type] != "REG"))
 			{
 				ss << "S";
 			}
 			
-
-
-
-
 			ss << types[it->second.type] << " #(.DATAWIDTH(" << it->second.datawidth;
 			ss << ")) " << types[it->second.type] << "_" << it->first << "(";
 
-			// inputs
-			for (int i = 0; i < it->second.inputs.size(); i++)
+
+			// if MUX
+			if (types[it->second.type] == "REG")
 			{
-				ss << tempComponents.at(it->second.inputs.at(i)).name << ", ";
+
 			}
-			// outputs
-			for (int i = 0; i < it->second.outputs.size(); i++) 
+			// if COMP
+			else if (types[it->second.type] == "COMP")
 			{
-				ss << tempComponents.at(it->second.outputs.at(i)).name;
-				if (i != it->second.inputs.size() - 1) ss << ", ";
+				// inputs
+				for (int i = 0; i < it->second.inputs.size(); i++)
+				{
+					ss << tempComponents.at(it->second.inputs.at(i)).name << ", ";
+				}
+
+				if (it->second.subtype == Component::EQ)
+				{
+					ss << "0, 0, ";
+
+					// outputs
+					for (int i = 0; i < it->second.outputs.size(); i++)
+					{
+						ss << tempComponents.at(it->second.outputs.at(i)).name;
+					}
+				}
+				if (types[it->second->subtype] == ">") 
+				{
+					// outputs
+					for (int i = 0; i < it->second.outputs.size(); i++)
+					{
+						ss << tempComponents.at(it->second.outputs.at(i)).name;
+					}
+
+					ss << ", 0, 0";
+				}
+				if (types[it->second->subtype] == ">") {
+					ss << "0, ";
+
+					// outputs
+					for (int i = 0; i < it->second.outputs.size(); i++)
+					{
+						ss << tempComponents.at(it->second.outputs.at(i)).name;
+					}
+
+				    ss << ", 0";
+				}
+
+				// outputs
+				for (int i = 0; i < it->second.outputs.size(); i++)
+				{
+					ss << tempComponents.at(it->second.outputs.at(i)).name;
+				}
+
+			}
+			// if REG
+			else if (types[it->second.type] == "REG")
+			{
+
+			}
+			else
+			{
+				// inputs
+				for (int i = 0; i < it->second.inputs.size(); i++)
+				{
+					ss << tempComponents.at(it->second.inputs.at(i)).name << ", ";
+				}
+				// outputs
+				for (int i = 0; i < it->second.outputs.size(); i++)
+				{
+					ss << tempComponents.at(it->second.outputs.at(i)).name;
+				}
 			}
 
 			ss << "); " << std::endl;
