@@ -214,9 +214,12 @@ void writeVerilog(char inputFile[], char outputFile[])
 	}
 
 	ss << std::endl;
-	/*
-	for (const module& mod : circuitModules)
+	
+	// modules
+	// need to mod this to start at the first item past WIRE to get to modules
+	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
+		/* DO THIS SIGNED STUFF LAST
 		// if any input OR output is signed, the module needs to be signed.
 		bool signVariableFound = false;
 
@@ -231,18 +234,22 @@ void writeVerilog(char inputFile[], char outputFile[])
 		}
 
 		ss << "\t";
+		
 
 		// prepend S to make module signed, unless if REG component
 		if (signVariableFound && (mod.operation != "REG"))
 		{
 			ss << "S";
 		}
+		*/
 
-		ss << mod.operation << " #(.DATAWIDTH(" << mod.width;
-		ss << ")) " << mod.operation << "_" << mod.id << "(";
+		ss << "\t"  << types[it->second.type] << " #(.DATAWIDTH(" << it->second.datawidth;
+		ss << ")) " << types[it->second.type] << "_" << it->first << "(";
 
+		
+		/*
 		// COMP
-		if (mod.operation == "COMP")
+		if (types[it->second.type] == "COMP")
 		{
 			ss << padVar(mod.in[0], mod) << ", " << padVar(mod.in[1], mod) << ", ";
 			if (mod.moduleOutput == "eq")
@@ -258,7 +265,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 				ss << "0, " << mod.out[0].name << ", 0";
 			}
 		}
-
+		
 		// MUX
 		else if (strcmp(mod.operation.c_str(), "MUX2x1") == 0)
 		{
@@ -274,15 +281,21 @@ void writeVerilog(char inputFile[], char outputFile[])
 			ss << padVar(mod.in[0], mod) << ", Clk, Rst, ";
 			ss << mod.out[0].name;
 		}
+		*/
 
 		// all other modules
-		else
+		//else
 		{
+			/*
 			for (const variable& var : mod.in)
 			{
-				ss << padVar(var, mod) << ", ";
-			}
+				ss <<  ", "; // padVar(var, mod) <<
+			}*/
 
+			for (int i = 0; i < it->second.outputs.size(); i++) {
+				ss << tempComponents.at(it->second.outputs.at(i)).name << ", ";
+			}
+			/*
 			std::vector<variable> outputs = mod.out;
 
 			for (int i = 0; i < outputs.size(); i++)
@@ -290,11 +303,22 @@ void writeVerilog(char inputFile[], char outputFile[])
 				ss << padVar(outputs[i], mod);
 				if (i != outputs.size() - 1) ss << ", ";
 			}
+			*/
+			for (int i = 0; i < it->second.inputs.size(); i++) 
+			{
+				ss << tempComponents.at(it->second.inputs.at(i)).name;
+
+				if (i != it->second.inputs.size() - 1) ss << ", ";
+			}
 		}
-		ss << "); //" << mod.inputLine << std::endl;
+
+		
+		ss << "); " << std::endl; 
+		
+		
 	}
 
-	*/
+	
 	ss << std::endl << "endmodule";
 	ss << std::endl;
 
