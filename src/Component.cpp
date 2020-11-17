@@ -10,4 +10,5 @@ Component::Component(string n, Component::component_type t, bool sn, int width, 
     this->sign = sn;
     this->datawidth = width;
     this->id = id;
+    this->subtype = Component::EQ;
 }

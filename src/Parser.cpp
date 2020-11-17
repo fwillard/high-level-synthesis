@@ -276,6 +276,18 @@ bool Parser::generateComponents(){
                 }       
 
                 //Other properties come from the input/output components
+                //handle comparitor
+                if(current_component.type == Component::COMP){
+                    if(line.at(3) == "<"){
+                        current_component.subtype = Component::LT;
+                    }
+                    else if(line.at(3) == ">"){
+                        current_component.subtype = Component::GT;
+                    }
+                    else{
+                        current_component.subtype = Component::EQ;
+                    }
+                }
                 current_component.name = "Node_" + to_string(current_component.id);
                 current_component.datawidth = this->components.at(current_component.inputs.at(0)).datawidth;
                 current_component.sign = this->components.at(current_component.inputs.at(0)).sign;
