@@ -177,9 +177,6 @@ void writeVerilog(char inputFile[], char outputFile[])
 		if (/*(it->second.type != Component::REG ) &&*/ (it->second.type != Component::INPUT ) && (it->second.type != Component::OUTPUT )
 			&& (it->second.type != Component::WIRE ) && (it->second.type != Component::CONST ))
 		{
-			// make me pretty			
-			ss << "\t";
-
 			// if any input OR output is signed, the module needs to be signed.
 			// prepend S to make module signed, unless if REG component
 			if ((it->second.sign = 1) && (it->second.type != Component::REG ))
@@ -187,10 +184,15 @@ void writeVerilog(char inputFile[], char outputFile[])
 				ss << "S";
 			}
 			
-			if ((it->second.name != "INOP"))
+			if (it->second.name != "INOP" && it->second.name != "OUOP")
 			{
 				ss << types[it->second.type] << " #(.DATAWIDTH(" << it->second.datawidth;
 				ss << ")) " << types[it->second.type] << "_" << it->first << "(";
+			}
+			else if (it->second.name != "INOP" && it->second.name == "OUOP")
+			{
+				ss << types[it->second.type] << " #(.DATAWIDTH(" << it->second.datawidth;
+				ss << ")) " << types[it->second.type] << "_OUT" << it->first-1 << "(";
 			}
 
 
@@ -260,18 +262,40 @@ void writeVerilog(char inputFile[], char outputFile[])
 			{
 				// outputs
 				if(it->second.name == "OUOP"){
-					ss << tempComponents.at(tempComponents.at(it->second.inputs.at(0)).inputs.at(0)).name;
+					for (int i = 0; i<it->second.inputs.size();i++){//create a new line for every input to ouop
+						ss << tempComponents.at(tempComponents.at(it->second.inputs.at(i)).inputs.at(0)).name; //this will always apply
+						ss << ", Clk, Rst, ";
+						// inputs
+						ss << tempComponents.at(it->second.inputs.at(i)).name;
+
+						if (i <= it->second.inputs.size()-2)
+						{
+							ss << "); " << std::endl;
+
+						    // make me pretty			
+							ss << "\t";
+							
+							ss << types[it->second.type] << " #(.DATAWIDTH(" << it->second.datawidth;
+							ss << ")) " << types[it->second.type] << "_OUT" << i+1 << "(";
+						}
+					}
+					
 				}
-				for (int i = 0; i < it->second.outputs.size(); i++)
+				else
 				{
-					ss << tempComponents.at(it->second.outputs.at(i)).name;
+					for (int i = 0; i < it->second.outputs.size(); i++)
+					{
+						ss << tempComponents.at(it->second.outputs.at(i)).name;
+					}
+					ss << ", Clk, Rst, ";
+					// inputs
+					for (int i = 0; i < it->second.inputs.size(); i++)
+					{
+						ss << tempComponents.at(it->second.inputs.at(i)).name;
+					}
 				}
-				ss << ", Clk, Rst, ";
-				// inputs
-				for (int i = 0; i < it->second.inputs.size(); i++)
-				{
-					ss << tempComponents.at(it->second.inputs.at(i)).name;
-				}
+				
+				
 
 				
 			}
@@ -293,6 +317,9 @@ void writeVerilog(char inputFile[], char outputFile[])
 			{
 				ss << "); " << std::endl;
 			}
+
+			// make me pretty			
+			ss << "\t";
 
 		} // end if loop
 	}
