@@ -162,8 +162,8 @@ void writeVerilog(char inputFile[], char outputFile[])
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
 		if ((it->second.type == Component::REG) && (it->first >= 2)) {
-			ss << "\t" << "REG";
-			ss << " [" << it->second.datawidth << ":0]";
+			ss << "\t" << "reg";
+			ss << " [" << it->second.datawidth-1 << ":0]";
 			ss << " " << it->second.name.c_str() << ";" << std::endl;
 		}
 
@@ -249,13 +249,6 @@ void writeVerilog(char inputFile[], char outputFile[])
 
 				    ss << ", 0";
 				}
-
-				// outputs
-			/*	for (int i = 0; i < it->second.outputs.size(); i++)
-				{
-					ss << tempComponents.at(it->second.outputs.at(i)).name;
-				}*/
-
 			}
 			// if REG
 			else if ((it->second.type == Component::REG ) && (it->second.name != "INOP"))
