@@ -2,6 +2,7 @@
 #include "Component.hpp"
 #include "graph.hpp"
 #include <iostream>
+#include <cstring>
 
 
 using namespace std;
@@ -37,51 +38,6 @@ int main(int argc, char *argv[])
     Graph g = p.get_graph();
     double max = Graph::critical_path(&g);
     printf("Critical Path : %.3lf ns\n", max);
-/*    
-    //THIS IS A TEST GRAPH FOR CRITICAL PATH CALCULATION
-    Graph g;
-    g.add_vertex(0, 0);
-    g.add_vertex(1, 8);
-    g.add_vertex(2, 8);
-    g.add_vertex(3, 8);
-    g.add_vertex(4, 11, true);
-    g.add_vertex(5, 11, true);
-    g.add_vertex(6, 11, true);
-    g.add_vertex(7, 7);
-    g.add_vertex(8, 7);
-    g.add_vertex(9, 12);
-    g.add_vertex(10, 7);
-    g.add_vertex(11, 11, true);
-    g.add_vertex(12, 0);
-    
-    //nop
-    g.add_edge(0, 1);
-    g.add_edge(0, 4);
-    g.add_edge(0, 5);
-    g.add_edge(0, 9);
-    g.add_edge(0, 6);
-    g.add_edge(0, 3);
-    g.add_edge(0, 11);
-    
-    g.add_edge(1, 4);
-    g.add_edge(5, 1);
-    g.add_edge(2, 5);
-    g.add_edge(6, 2);
-    g.add_edge(3, 6);
-    g.add_edge(10, 3);
-    g.add_edge(4, 8);
-    g.add_edge(5, 7);
-    g.add_edge(4, 7);
-    g.add_edge(5, 8);
-    g.add_edge(6, 9);
-    g.add_edge(6, 11);
-    g.add_edge(8, 10);
-    g.add_edge(9, 10);
-    g.add_edge(7, 12);
-    g.add_edge(11, 12);
-    */
-    //double max = Graph::critical_path(&g);
-//    printf("Critical Path : %.3lf ns\n", max);
 
 return 0;
 }
@@ -99,7 +55,7 @@ bool checkFileExists(char file[])
 void writeVerilog(char inputFile[], char outputFile[])
 {
 	map<int, Component>::iterator it;
-	string types[] = { "CONST", "INPUT", "OUTPUT", "WIRE", "REG", "ADD", "SUB", "MUL", "SHR", "SHL", "DIV", "MOD", "INC", "DEC", "MUX2x1", "COMP", "COMP", "COMP" };
+	string types[] = { "CONST", "input", "output", "wire", "REG", "ADD", "SUB", "MUL", "SHR", "SHL", "DIV", "MOD", "INC", "DEC", "MUX2x1", "COMP", "COMP", "COMP" };
 
 	std::cout << "Verilog file:" << std::endl;
 
@@ -131,7 +87,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// have all the outputs, inputs, wires shown in the module parameters
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if ((types[it->second.type] != "WIRE") && (types[it->second.type] != "REG"))
+		if (it->second.type == Component::INPUT || it->second.type == Component::OUTPUT)
 		{
 			ss << it->second.name.c_str();
 
@@ -148,12 +104,12 @@ void writeVerilog(char inputFile[], char outputFile[])
 	ss << "\t" << "input Clk, Rst;" << std::endl;
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if (strcmp(types[it->second.type].c_str(), "INPUT") == 0)
+		if (it->second.type == Component::INPUT)
 		{
-			ss << "\t" << "INPUT";
+			ss << "\t" << "input";
 			if (it->second.sign)
 			{
-				ss << " SIGNED";
+				ss << " signed";
 			}
 
 			if (it->second.datawidth != 1)
@@ -170,9 +126,9 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// outputs
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if (strcmp(types[it->second.type].c_str(), "OUTPUT") == 0)
+		if (it->second.type == Component::OUTPUT)
 		{
-			ss << "\t" << "OUTPUT";
+			ss << "\t" << "output";
 			ss << " [" << it->second.datawidth - 1 << ":0]";
 			ss << " " << it->second.name.c_str() << ";" << std::endl;
 		}
@@ -183,12 +139,12 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// wires
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if (strcmp(types[it->second.type].c_str(), "WIRE") == 0)
+		if (it->second.type == Component::WIRE)
 		{
-			ss << "\t" << "WIRE";
+			ss << "\t" << "wire";
 			if (it->second.sign)
 			{
-				ss << " SIGNED";
+				ss << " signed";
 			}
 
 			if (it->second.datawidth != 1)
@@ -205,7 +161,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// registers
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if (strcmp(types[it->second.type].c_str(), "REG") == 0) {
+		if (it->second.type == Component::REG && it->first >= 2) {
 			ss << "\t" << "REG";
 			ss << " [" << it->second.datawidth << ":0]";
 			ss << " " << it->second.name.c_str() << ";" << std::endl;
@@ -216,10 +172,13 @@ void writeVerilog(char inputFile[], char outputFile[])
 	ss << std::endl;
 	
 	// modules
-	// need to mod this to start at the first item past WIRE to get to modules
+	// need to mod this to start at the first item past wire to get to modules
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		/* DO THIS SIGNED STUFF LAST
+        if( it->first < 2 ){
+            continue;
+        }
+		/* DO THIS signed STUFF LAST
 		// if any input OR output is signed, the module needs to be signed.
 		bool signVariableFound = false;
 
