@@ -175,7 +175,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// need to mod this to start at the first item past wire to get to modules
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if (/*(types[it->second.type] != "REG") &&*/ (types[it->second.type] != "input") && (types[it->second.type] != "output")
+		if ((types[it->second.type] != "REG") && (types[it->second.type] != "input") && (types[it->second.type] != "output")
 			&& (types[it->second.type] != "wire") && (types[it->second.type] != "CONST"))
 		{
 
@@ -196,40 +196,19 @@ void writeVerilog(char inputFile[], char outputFile[])
 			ss << types[it->second.type] << " #(.DATAWIDTH(" << it->second.datawidth;
 			ss << ")) " << types[it->second.type] << "_" << it->first << "(";
 
-
-			// all other modules
-			//else
+			// inputs
+			for (int i = 0; i < it->second.inputs.size(); i++)
 			{
-				/*
-				for (const variable& var : mod.in)
-				{
-					ss <<  ", "; // padVar(var, mod) <<
-				}*/
-
-				for (int i = 0; i < it->second.outputs.size(); i++) {
-					ss << tempComponents.at(it->second.outputs.at(i)).name << ", ";
-				}
-				/*
-				std::vector<variable> outputs = mod.out;
-
-				for (int i = 0; i < outputs.size(); i++)
-				{
-					ss << padVar(outputs[i], mod);
-					if (i != outputs.size() - 1) ss << ", ";
-				}
-				*/
-				for (int i = 0; i < it->second.inputs.size(); i++)
-				{
-					ss << tempComponents.at(it->second.inputs.at(i)).name;
-
-					if (i != it->second.inputs.size() - 1) ss << ", ";
-				}
+				ss << tempComponents.at(it->second.inputs.at(i)).name << ", ";
+			}
+			// outputs
+			for (int i = 0; i < it->second.outputs.size(); i++) 
+			{
+				ss << tempComponents.at(it->second.outputs.at(i)).name;
+				if (i != it->second.inputs.size() - 1) ss << ", ";
 			}
 
-
 			ss << "); " << std::endl;
-
-			
 
 		} // end if loop
 	}
