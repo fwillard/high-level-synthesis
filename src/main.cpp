@@ -314,7 +314,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 	ss << std::endl << "endmodule";
 	ss << std::endl;
 
-	std::cout << std::endl << ss.str() << std::endl;
+	//std::cout << std::endl << ss.str() << std::endl;
 
 		// write ss to file and finish
 		std::ofstream outFile;

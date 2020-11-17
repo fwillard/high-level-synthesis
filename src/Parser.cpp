@@ -11,9 +11,9 @@ Parser::~Parser(){
 bool Parser::parse(const string filename){    
     
     tokenize(filename);
-    generateComponents();
+    return generateComponents();
 
-    cout << "\n\nTokens\n==================================================================\n\n";
+    /*cout << "\n\nTokens\n==================================================================\n\n";
     for(vector<string> line : this->tokens){
         for(string token: line){
             cout << token << " ";
@@ -22,9 +22,9 @@ bool Parser::parse(const string filename){
     }
 
     cout << "\n\nComponents\n==================================================================\n\n";
-    print_components();
+    print_components();*/
     
-    return true;
+    //return true;
 }
 
 bool Parser::tokenize(const string filename){
