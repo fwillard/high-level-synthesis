@@ -175,74 +175,27 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// need to mod this to start at the first item past wire to get to modules
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
+		if (/*(types[it->second.type] != "REG") &&*/ (types[it->second.type] != "input") && (types[it->second.type] != "output")
+			&& (types[it->second.type] != "wire") && (types[it->second.type] != "CONST"))
 		{
 
-			/* DO THIS SIGNED STUFF LAST
 			// if any input OR output is signed, the module needs to be signed.
-			bool signVariableFound = false;
-
-			for (const variable& var : mod.in)
-			{
-				if (var.sign) signVariableFound = true;
-			}
-
-			for (const variable& var : mod.out)
-			{
-				if (var.sign) signVariableFound = true;
-			}
 
 			ss << "\t";
 
-
 			// prepend S to make module signed, unless if REG component
-			if (signVariableFound && (mod.operation != "REG"))
+			if ((it->second.sign = 1) && (types[it->second.type] != "REG"))
 			{
 				ss << "S";
 			}
-			*/
+			
 
 
 
 
-			ss << "\t" << types[it->second.type] << " #(.DATAWIDTH(" << it->second.datawidth;
+			ss << types[it->second.type] << " #(.DATAWIDTH(" << it->second.datawidth;
 			ss << ")) " << types[it->second.type] << "_" << it->first << "(";
 
-
-			/*
-			// COMP
-			if (types[it->second.type] == "COMP")
-			{
-				ss << padVar(mod.in[0], mod) << ", " << padVar(mod.in[1], mod) << ", ";
-				if (mod.moduleOutput == "eq")
-				{
-					ss << "0, 0, " << mod.out[0].name;
-				}
-				if (mod.moduleOutput == "gt")
-				{
-					ss << mod.out[0].name << ", 0, 0";
-				}
-				if (mod.moduleOutput == "lt")
-				{
-					ss << "0, " << mod.out[0].name << ", 0";
-				}
-			}
-
-			// MUX
-			else if (strcmp(mod.operation.c_str(), "MUX2x1") == 0)
-			{
-				ss << padVar(mod.in[1], mod) << ", ";
-				ss << padVar(mod.in[2], mod) << ", ";
-				ss << mod.in[0].name << ", ";
-				ss << padVar(mod.out[0], mod);
-			}
-
-			// REG
-			else if (strcmp(mod.operation.c_str(), "REG") == 0)
-			{
-				ss << padVar(mod.in[0], mod) << ", Clk, Rst, ";
-				ss << mod.out[0].name;
-			}
-			*/
 
 			// all other modules
 			//else
