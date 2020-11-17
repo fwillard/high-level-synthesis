@@ -268,7 +268,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 						// inputs
 						ss << tempComponents.at(it->second.inputs.at(i)).name;
 
-						if (i <= it->second.inputs.size()-2)
+						if (it->second.inputs.size() > 1 && i < it->second.inputs.size()-1)
 						{
 							ss << "); " << std::endl;
 
