@@ -23,7 +23,6 @@ class Component{
         int datawidth = 8;
         int id;
 
-
         vector<int> inputs;
         vector<int> outputs;
 }; 

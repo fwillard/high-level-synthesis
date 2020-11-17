@@ -174,15 +174,15 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// modules
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if ((types[it->second.type] != "REG") && (types[it->second.type] != "input") && (types[it->second.type] != "output")
-			&& (types[it->second.type] != "wire") && (types[it->second.type] != "CONST"))
+		if ((it->second.type != Component::REG ) && (it->second.type != Component::INPUT ) && (it->second.type != Component::OUTPUT )
+			&& (it->second.type != Component::WIRE ) && (it->second.type != Component::CONST ))
 		{
 			// make me pretty			
 			ss << "\t";
 
 			// if any input OR output is signed, the module needs to be signed.
 			// prepend S to make module signed, unless if REG component
-			if ((it->second.sign = 1) && (types[it->second.type] != "REG"))
+			if ((it->second.sign = 1) && (it->second.type != Component::REG ))
 			{
 				ss << "S";
 			}
@@ -192,12 +192,12 @@ void writeVerilog(char inputFile[], char outputFile[])
 
 
 			// if MUX
-			if (types[it->second.type] == "REG")
+			if (it->second.type == Component::REG )
 			{
 
 			}
 			// if COMP
-			else if (types[it->second.type] == "COMP")
+			else if (it->second.type == Component::COMP )
 			{
 				// inputs
 				for (int i = 0; i < it->second.inputs.size(); i++)
@@ -215,7 +215,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 						ss << tempComponents.at(it->second.outputs.at(i)).name;
 					}
 				}
-				if (types[it->second->subtype] == ">") 
+				if (it->second.subtype == Component::GT) 
 				{
 					// outputs
 					for (int i = 0; i < it->second.outputs.size(); i++)
@@ -225,7 +225,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 
 					ss << ", 0, 0";
 				}
-				if (types[it->second->subtype] == ">") {
+				if (it->second.subtype == Component::LT) {
 					ss << "0, ";
 
 					// outputs
@@ -245,7 +245,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 
 			}
 			// if REG
-			else if (types[it->second.type] == "REG")
+			else if (it->second.type == Component::REG)
 			{
 
 			}
