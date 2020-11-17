@@ -225,10 +225,10 @@ void writeVerilog(char inputFile[], char outputFile[])
 					// outputs
 					for (int i = 0; i < it->second.outputs.size(); i++)
 					{
-						ss << tempComponents.at(it->second.outputs.at(i)).name;
+						ss << tempComponents.at(it->second.outputs.at(0)).name;
 					}
 				}
-				if (it->second.subtype == Component::GT) 
+				else if (it->second.subtype == Component::GT) 
 				{
 					// outputs
 					for (int i = 0; i < it->second.outputs.size(); i++)
@@ -238,7 +238,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 
 					ss << ", 0, 0";
 				}
-				if (it->second.subtype == Component::LT) {
+				else if (it->second.subtype == Component::LT) {
 					ss << "0, ";
 
 					// outputs
@@ -251,10 +251,10 @@ void writeVerilog(char inputFile[], char outputFile[])
 				}
 
 				// outputs
-				for (int i = 0; i < it->second.outputs.size(); i++)
+			/*	for (int i = 0; i < it->second.outputs.size(); i++)
 				{
 					ss << tempComponents.at(it->second.outputs.at(i)).name;
-				}
+				}*/
 
 			}
 			// if REG
@@ -283,16 +283,10 @@ void writeVerilog(char inputFile[], char outputFile[])
 				}
 				else
 				{
-					for (int i = 0; i < it->second.outputs.size(); i++)
-					{
-						ss << tempComponents.at(it->second.outputs.at(i)).name;
-					}
+					ss << tempComponents.at(it->second.inputs.at(0)).name;
 					ss << ", Clk, Rst, ";
-					// inputs
-					for (int i = 0; i < it->second.inputs.size(); i++)
-					{
-						ss << tempComponents.at(it->second.inputs.at(i)).name;
-					}
+					ss << it->second.name; //this will always apply
+					
 				}
 				
 				
