@@ -175,8 +175,6 @@ void writeVerilog(char inputFile[], char outputFile[])
 	// need to mod this to start at the first item past wire to get to modules
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
 	{
-		if ((types[it->second.type] != "REG") && (types[it->second.type] != "INPUT") && (types[it->second.type] != "OUTPUT")
-			&& (types[it->second.type] != "WIRE"))
 		{
 
 			/* DO THIS SIGNED STUFF LAST
