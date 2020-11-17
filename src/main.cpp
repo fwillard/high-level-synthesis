@@ -121,7 +121,7 @@ void writeVerilog(char inputFile[], char outputFile[])
 		}
 	}
 
-	ss << std::endl;
+	ss << std::endl << "";
 
 	// outputs
 	for (it = tempComponents.begin(); it != tempComponents.end(); it++)
@@ -259,6 +259,9 @@ void writeVerilog(char inputFile[], char outputFile[])
 			else if ((it->second.type == Component::REG ) && (it->second.name != "INOP"))
 			{
 				// outputs
+				if(it->second.name == "OUOP"){
+					ss << tempComponents.at(tempComponents.at(it->second.inputs.at(0)).inputs.at(0)).name;
+				}
 				for (int i = 0; i < it->second.outputs.size(); i++)
 				{
 					ss << tempComponents.at(it->second.outputs.at(i)).name;
