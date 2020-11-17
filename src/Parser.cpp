@@ -232,13 +232,22 @@ bool Parser::generateComponents(){
                     }
                     current_component.inputs.push_back(index_2);
                 }
-                else{ //handle constants
-                    Component tmp = Component("Node_"+to_string(id_count), Component::CONST, current_component.sign, current_component.datawidth,id_count);
-                    id_count++;
-                    tmp.outputs.push_back(current_component.id);
+                else{ //handle constants and inc dec
+                    if(extract_int(arg2) == 1){
+                        if(current_component.type == Component::ADD){
+                            current_component.type = Component::INC;
+                        }
+                        else if(current_component.type == Component::SUB){
+                            current_component.type = Component::DEC;
+                        }
+                    }else{
+                        Component tmp = Component("Node_"+to_string(id_count), Component::CONST, current_component.sign, current_component.datawidth,id_count);
+                        id_count++;
+                        tmp.outputs.push_back(current_component.id);
 
-                    current_component.inputs.push_back(tmp.id);
-                    consts.push_back(tmp);
+                        current_component.inputs.push_back(tmp.id);
+                        consts.push_back(tmp);
+                    }
                 }
 
                 if(current_type == 14){ //third input for mux
