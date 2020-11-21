@@ -8,6 +8,8 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include "graph.hpp"
+#include "scheduling.hpp"
 
 int main(int argc, char** argv){
     
@@ -28,6 +30,46 @@ int main(int argc, char** argv){
         std::cerr << "Invalid value for latency: " << argv[2] << "\nValue must be a valid int" <<  std::endl;
         return 1;
     }
+    
+    Graph g;
+    
+    g.add_vertex(0, Resource_Type::NOP);
+    g.add_vertex(1, Resource_Type::MULTIPLIER);
+    g.add_vertex(2, Resource_Type::MULTIPLIER);
+    g.add_vertex(3, Resource_Type::MULTIPLIER);
+    g.add_vertex(4, Resource_Type::ADDER);
+    g.add_vertex(5, Resource_Type::ADDER);
+    g.add_vertex(6, Resource_Type::MULTIPLIER);
+    g.add_vertex(7, Resource_Type::MULTIPLIER);
+    g.add_vertex(8, Resource_Type::MULTIPLIER);
+    g.add_vertex(9, Resource_Type::ADDER);
+    g.add_vertex(10, Resource_Type::ADDER);
+    g.add_vertex(11, Resource_Type::LOGICAL);
+    g.add_vertex(12, Resource_Type::NOP);
+    
+    g.add_edge(0, 1);
+    g.add_edge(0, 2);
+    g.add_edge(0, 6);
+    g.add_edge(0, 8);
+    g.add_edge(0, 10);
+    
+    g.add_edge(1, 3);
+    g.add_edge(2, 3);
+    
+    g.add_edge(6, 7);
+    g.add_edge(8, 9);
+    g.add_edge(10, 11);
+    
+    g.add_edge(3, 4);
+    g.add_edge(4, 5);
+    g.add_edge(7, 5);
+    
+    g.add_edge(5, 12);
+    g.add_edge(9, 12);
+    g.add_edge(11, 12);
+    
+    Scheduler s;
+    s.force_directed(&g, latency);
     
     return 0;
 }
