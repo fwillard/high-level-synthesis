@@ -23,11 +23,6 @@ void Graph::add_edge(const int from, const int to){
     vertex *t = (graph.find(to)->second);
     f->adjacent.push_back(t);
 }
-void Graph::remove_edge(const int from, const int to){
-    vertex *f = (graph.find(from)->second);
-    vertex *t = (graph.find(to)->second);
-    f->adjacent.erase(std::remove(f->adjacent.begin(), f->adjacent.end(), t), f->adjacent.end());
-}
 
 bool Graph::is_acyclic(Graph g){
     //checks if a graph is acyclic by depth first search
