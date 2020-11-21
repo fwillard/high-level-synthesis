@@ -73,10 +73,11 @@ int main(int argc, char** argv){
     
     if(!Graph::is_acyclic(g)){
         std::cerr << "Graph is not acyclic" << std::endl;
+        return 1;
     }
     
-//    Scheduler s;
-//    s.force_directed(&g, latency);
+    Scheduler s;
+    s.force_directed(g, latency);
     
     return 0;
 }

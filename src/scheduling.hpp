@@ -8,13 +8,18 @@
 #ifndef scheduling_hpp
 #define scheduling_hpp
 
-#include <stdio.h>
+#include <iostream>
 #include "graph.hpp"
 class Scheduler{
 private:
-    void asap(Graph *g);
-    void alap(Graph *g, int lambda);
+    vertex* find_unscheduled_asap(Graph*);
+    vertex* find_unscheduled_alap(Graph*);
+    Graph asap(Graph);
+    Graph alap(Graph, int);
 public:
-    void force_directed(Graph *g, int lambda);
+    void force_directed(Graph, int);
+    
+    //util
+    static void print_schedule(Graph);
 };
 #endif /* scheduling_hpp */
