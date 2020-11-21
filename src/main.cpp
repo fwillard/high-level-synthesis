@@ -60,6 +60,7 @@ int main(int argc, char** argv){
     g.add_edge(8, 9);
     g.add_edge(10, 11);
     
+    
     g.add_edge(3, 4);
     g.add_edge(4, 5);
     g.add_edge(7, 5);
@@ -68,8 +69,14 @@ int main(int argc, char** argv){
     g.add_edge(9, 12);
     g.add_edge(11, 12);
     
-    Scheduler s;
-    s.force_directed(&g, latency);
+//    g.add_edge(4, 1); //creates a cycle;
+    
+    if(!Graph::is_acyclic(g)){
+        std::cerr << "Graph is not acyclic" << std::endl;
+    }
+    
+//    Scheduler s;
+//    s.force_directed(&g, latency);
     
     return 0;
 }

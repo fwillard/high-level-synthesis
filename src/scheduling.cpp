@@ -10,3 +10,7 @@
 void Scheduler::force_directed(Graph *g, int lambda){
     
 }
+
+void Scheduler::asap(Graph *g){
+    
+}
