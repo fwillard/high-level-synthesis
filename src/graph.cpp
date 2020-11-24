@@ -83,13 +83,11 @@ void Graph::deep_copy(const Graph& source){
 }
 
 //copy constructor
-Graph::Graph(const Graph& source)
-{
+Graph::Graph(const Graph& source){
     deep_copy(source);
 }
 
-Graph& Graph::operator=(const Graph& source)
-{
+Graph& Graph::operator=(const Graph& source){
     // check for self-assignment
     if (this != &source)
     {
