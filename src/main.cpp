@@ -44,7 +44,7 @@ int main(int argc, char** argv){
     g.add_vertex(8, Resource_Type::MULTIPLIER);
     g.add_vertex(9, Resource_Type::ADDER);
     g.add_vertex(10, Resource_Type::ADDER);
-    g.add_vertex(11, Resource_Type::LOGICAL);
+    g.add_vertex(11, Resource_Type::ADDER);
     g.add_vertex(12, Resource_Type::NOP);
     
     g.add_edge(0, 1);
@@ -78,6 +78,8 @@ int main(int argc, char** argv){
     
     Scheduler s;
     s.force_directed(g, latency);
+
+    
     
     return 0;
 }

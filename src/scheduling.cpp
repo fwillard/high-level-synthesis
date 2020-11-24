@@ -8,17 +8,24 @@
 #include "scheduling.hpp"
 
 void Scheduler::force_directed(Graph g, int lambda){
+    //generate asap schedule
     Graph g_asap = asap(g);
     
     std::cout << "ASAP schedule: " << std::endl;
     print_schedule(g_asap);
     std::cout << std::endl;
     
+    //generate alap schedule
     Graph g_alap = alap(g, lambda);
     
     std::cout << "ALAP schedule: " << std::endl;
     print_schedule(g_alap);
     std::cout << std::endl;
+    
+    //calc time frames for each operation
+    for(auto v : g.graph){
+        v.second->time_frame = std::make_pair(g_asap.graph[v.first]->cycle, g_alap.graph[v.first]->cycle);
+    }
 }
 
 Graph Scheduler::asap(Graph g){
@@ -37,6 +44,7 @@ Graph Scheduler::asap(Graph g){
     }
     return g;
 }
+
 Graph Scheduler::alap(Graph g, int lambda){
     g.graph.rbegin()->second->cycle = lambda + 1;
     while(g.graph.begin()->second->cycle == -1){

@@ -31,6 +31,7 @@ struct vertex{
     int id;
     int cycle = -1;
     int delay;
+    std::pair<int, int> time_frame;
     Resource_Type type;
     Color color;
     vertex(int i, Resource_Type t) : id(i), type(t) {
@@ -41,13 +42,17 @@ struct vertex{
                 delay = 1;
                 break;
             case Resource_Type::MULTIPLIER:
-                delay = 2;
+//                delay = 2; TEMP
+                delay = 1;
                 break;
             case Resource_Type::DIVIDER:
-                delay = 3;
+//                delay = 3; TEMP
+                delay = 1;
                 break;
         }
     }
+    
+    double get_op_probability(int);
 };
 
 class Graph{
@@ -65,6 +70,7 @@ public:
     
     //algorithms
     static bool is_acyclic(Graph);
+    double get_type_probability(int, Resource_Type);
     
     //default constructor
     Graph(){};

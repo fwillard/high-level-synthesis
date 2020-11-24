@@ -99,3 +99,25 @@ Graph& Graph::operator=(const Graph& source)
  
     return *this;
 }
+
+double vertex::get_op_probability(int time){
+    //check if in time frame
+    if((time_frame.first <= time) && (time <= time_frame.second)){
+        double frame_width = time_frame.second - time_frame.first + 1;
+        return 1.0 / frame_width;
+    }
+    //return 0 if outside time frame
+    return 0;
+}
+
+double Graph::get_type_probability(int time, Resource_Type type){
+    double sum = 0.0;
+    //sum all probabilities for the specified type
+    for(auto v : graph){
+        if(v.second->type == type){
+            sum += v.second->get_op_probability(time);
+        }
+    }
+    
+    return sum;
+}
