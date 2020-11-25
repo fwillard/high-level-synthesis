@@ -71,6 +71,7 @@ void Graph::deep_copy(const Graph& source){
         add_vertex(v.second->id, v.second->type);
         graph[i]->color = v.second->color;
         graph[i]->cycle = v.second->cycle;
+        graph[i]->time_frame = v.second->time_frame;
         i++;
     }
     
