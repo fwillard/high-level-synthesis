@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include "graph.hpp"
+
 class Scheduler{
 private:
     vertex* find_unscheduled_asap(Graph*);

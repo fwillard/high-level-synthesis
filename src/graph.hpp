@@ -11,6 +11,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+
 enum class Resource_Type{
     ADDER,
     MULTIPLIER,
@@ -71,6 +72,7 @@ public:
     //algorithms
     static bool is_acyclic(Graph);
     double get_type_probability(int, Resource_Type);
+    double calc_self_force(int, vertex*);
     
     //default constructor
     Graph(){};

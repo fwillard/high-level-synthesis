@@ -8,23 +8,29 @@
 #include "scheduling.hpp"
 
 void Scheduler::force_directed(Graph g, int lambda){
-    //generate asap schedule
-    Graph g_asap = asap(g);
+    //create list of unscheduled nodes
+    std::map<int, vertex*> unscheduled = g.graph;
     
-    std::cout << "ASAP schedule: " << std::endl;
-    print_schedule(g_asap);
-    std::cout << std::endl;
-    
-    //generate alap schedule
-    Graph g_alap = alap(g, lambda);
-    
-    std::cout << "ALAP schedule: " << std::endl;
-    print_schedule(g_alap);
-    std::cout << std::endl;
-    
-    //calc time frames for each operation
-    for(auto v : g.graph){
-        v.second->time_frame = std::make_pair(g_asap.graph[v.first]->cycle, g_alap.graph[v.first]->cycle);
+    while(!unscheduled.empty()){
+        //generate asap schedule
+        Graph g_asap = asap(g);
+        
+        std::cout << "ASAP schedule: " << std::endl;
+        print_schedule(g_asap);
+        std::cout << std::endl;
+        
+        //generate alap schedule
+        Graph g_alap = alap(g, lambda);
+        
+        std::cout << "ALAP schedule: " << std::endl;
+        print_schedule(g_alap);
+        std::cout << std::endl;
+        
+        //calc time frames for each operation
+        for(auto v : g.graph){
+            v.second->time_frame = std::make_pair(g_asap.graph[v.first]->cycle, g_alap.graph[v.first]->cycle);
+        }
+        
     }
 }
 
