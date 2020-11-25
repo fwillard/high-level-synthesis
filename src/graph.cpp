@@ -114,7 +114,9 @@ double Graph::get_type_probability(int time, Resource_Type type){
 
 double Graph::calc_self_force(int j, vertex* v){
     double sum = 0.0;
+    //sum all possible times in time frame
     for(int i = v->time_frame.first; i <= v->time_frame.second; i++){
+        //if it is time we want, 1 - op_prob, else 0 - op_prob
         if(i == j){
             sum += get_type_probability(i, v->type) * (1 - v->get_op_probability(i));
         }
@@ -122,6 +124,7 @@ double Graph::calc_self_force(int j, vertex* v){
             sum += get_type_probability(i, v->type) * (0 - v->get_op_probability(i));
         }
     }
+    return sum;
 }
 
 // VERTEX METHODS
