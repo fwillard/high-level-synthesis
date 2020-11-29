@@ -32,6 +32,8 @@ struct vertex{
     int id;
     int cycle = -1;
     int delay;
+    double total_force;
+    int min_force_cycle = -1;
     std::pair<int, int> time_frame;
     Resource_Type type;
     Color color;
@@ -43,12 +45,10 @@ struct vertex{
                 delay = 1;
                 break;
             case Resource_Type::MULTIPLIER:
-//                delay = 2; TEMP
-                delay = 1;
+                delay = 2;
                 break;
             case Resource_Type::DIVIDER:
-//                delay = 3; TEMP
-                delay = 1;
+                delay = 3;
                 break;
         }
     }
@@ -73,6 +73,8 @@ public:
     static bool is_acyclic(Graph);
     double get_type_probability(int, Resource_Type);
     double calc_self_force(int, vertex*);
+    double calc_predecessor_force(int, vertex*);
+    double calc_successor_force(int, vertex*);
     
     //default constructor
     Graph(){};

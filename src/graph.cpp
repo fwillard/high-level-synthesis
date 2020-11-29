@@ -127,6 +127,14 @@ double Graph::calc_self_force(int j, vertex* v){
     return sum;
 }
 
+double Graph::calc_predecessor_force(int j, vertex* v){
+    return 0.0;
+}
+
+double Graph::calc_successor_force(int j, vertex* v){
+    return 0.0;
+}
+
 // VERTEX METHODS
 double vertex::get_op_probability(int time){
     //check if in time frame

@@ -9,11 +9,12 @@
 
 void Scheduler::force_directed(Graph g, int lambda){
     //create list of unscheduled nodes
-    std::map<int, vertex*> unscheduled = g.graph;
+    int unscheduled_count = g.graph.size();
     
-    while(!unscheduled.empty()){
+    while(unscheduled_count > 0){
         //generate asap schedule
         Graph g_asap = asap(g);
+        
         
         std::cout << "ASAP schedule: " << std::endl;
         print_schedule(g_asap);
@@ -26,11 +27,41 @@ void Scheduler::force_directed(Graph g, int lambda){
         print_schedule(g_alap);
         std::cout << std::endl;
         
-        //calc time frames for each operation
         for(auto v : g.graph){
+            //calc time frames for each operation
             v.second->time_frame = std::make_pair(g_asap.graph[v.first]->cycle, g_alap.graph[v.first]->cycle);
         }
         
+        //calc min force cycle for each vertex
+        for(auto v : g.graph){
+            vertex* u = v.second;
+            //if unscheduled
+            if(u->cycle == -1){
+                u->total_force = std::numeric_limits<double>::max();
+                for(int i = u->time_frame.first; i <= u->time_frame.second; i++){
+                    double self_force = g.calc_self_force(i, u);
+                    double pred_force = g.calc_predecessor_force(i, u);
+                    double succ_force = g.calc_successor_force(i, u);
+                    
+                    double total_force = self_force + pred_force + succ_force;
+                    
+                    if(total_force < u->total_force){
+                        u->total_force = total_force;
+                        u->min_force_cycle = i;
+                    }
+                }
+            }
+        }
+        
+        //schedule minimum force node
+        vertex* min_vertex = g.graph[0];
+        for(auto v : g.graph){
+            if(v.second->total_force < min_vertex->total_force){
+                min_vertex = v.second;
+            }
+        }
+
+        min_vertex->cycle = min_vertex->min_force_cycle;
     }
 }
 
