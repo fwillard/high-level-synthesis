@@ -11,7 +11,7 @@
 void Graph::add_vertex(const int id, Resource_Type t){
     vertex_map::iterator itr = graph.find(id);
     if(itr == graph.end()){
-        std::shared_ptr<vertex> v = std::shared_ptr<vertex>(new vertex(id, t));
+        std::shared_ptr<vertex> v = std::make_shared<vertex>(id, t);
         graph[id] = v;
         return;
     }
