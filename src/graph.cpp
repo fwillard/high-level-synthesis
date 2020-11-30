@@ -11,7 +11,7 @@
 void Graph::add_vertex(const int id, Resource_Type t){
     vertex_map::iterator itr = graph.find(id);
     if(itr == graph.end()){
-        std::shared_ptr<vertex> v = std::make_shared<vertex>(id, t);
+        std::shared_ptr<vertex> v = std::make_shared<vertex> (id, t);
         graph[id] = v;
         return;
     }
@@ -127,11 +127,37 @@ double Graph::calc_self_force(int j, std::shared_ptr<vertex> v){
 }
 
 double Graph::calc_predecessor_force(int j, std::shared_ptr<vertex> v){
-    return 0.0;
+    double sum = 0.0;
+    for(auto u : v->inputs){
+        std::pair<int, int> old_time_frame = v->time_frame;
+        
+        int first = j - u->time_frame.first;
+        
+        std::pair<int, int> new_time_frame = std::make_pair(first, old_time_frame.second);
+        u->time_frame = new_time_frame;
+        
+        sum += calc_self_force(j, u);
+        
+        u->time_frame = old_time_frame;
+    }
+    return sum;
 }
 
 double Graph::calc_successor_force(int j, std::shared_ptr<vertex> v){
-    return 0.0;
+    double sum = 0.0;
+    for(auto u : v->outputs){
+        std::pair<int, int> old_time_frame = v->time_frame;
+        
+        int second = j - u->time_frame.second;
+        
+        std::pair<int, int> new_time_frame = std::make_pair(old_time_frame.first, second);
+        u->time_frame = new_time_frame;
+        
+        sum += calc_self_force(j, u);
+        
+        u->time_frame = old_time_frame;
+    }
+    return sum;
 }
 
 // VERTEX METHODS
