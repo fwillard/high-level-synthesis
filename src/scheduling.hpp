@@ -13,8 +13,8 @@
 
 class Scheduler{
 private:
-    vertex* find_unscheduled_asap(Graph*);
-    vertex* find_unscheduled_alap(Graph*);
+    std::shared_ptr<vertex> find_unscheduled_asap(Graph*);
+    std::shared_ptr<vertex> find_unscheduled_alap(Graph*);
     Graph asap(Graph);
     Graph alap(Graph, int);
 public:

@@ -11,8 +11,9 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <memory>
 
-enum class Resource_Type{
+enum class Resource_Type : int{
     ADDER,
     MULTIPLIER,
     LOGICAL,
@@ -20,15 +21,15 @@ enum class Resource_Type{
     NOP
 };
 
-enum class Color{
+enum class Color : int{
     WHITE,
     GRAY,
     BLACK
 };
 
 struct vertex{
-    std::vector<vertex*> outputs;
-    std::vector<vertex*> inputs;
+    std::vector<std::shared_ptr<vertex>> outputs;
+    std::vector<std::shared_ptr<vertex>> inputs;
     int id;
     int cycle = -1;
     int delay;
@@ -58,11 +59,11 @@ struct vertex{
 
 class Graph{
 private:
-    static bool visit(vertex*);
+    static bool visit(std::shared_ptr<vertex>);
     void deep_copy(const Graph&);
 public:
     //public members
-    typedef std::map<int, vertex *> vertex_map;
+    using vertex_map = std::map<int, std::shared_ptr<vertex>>;
     vertex_map graph;
     
     //set up functions
@@ -72,9 +73,9 @@ public:
     //algorithms
     static bool is_acyclic(Graph);
     double get_type_probability(int, Resource_Type);
-    double calc_self_force(int, vertex*);
-    double calc_predecessor_force(int, vertex*);
-    double calc_successor_force(int, vertex*);
+    double calc_self_force(int, std::shared_ptr<vertex>);
+    double calc_predecessor_force(int, std::shared_ptr<vertex>);
+    double calc_successor_force(int, std::shared_ptr<vertex>);
     
     //default constructor
     Graph(){};

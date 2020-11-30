@@ -11,8 +11,7 @@
 void Graph::add_vertex(const int id, Resource_Type t){
     vertex_map::iterator itr = graph.find(id);
     if(itr == graph.end()){
-        vertex *v;
-        v = new vertex(id, t);
+        std::shared_ptr<vertex> v = std::shared_ptr<vertex>(new vertex(id, t));
         graph[id] = v;
         return;
     }
@@ -20,8 +19,8 @@ void Graph::add_vertex(const int id, Resource_Type t){
 }
 
 void Graph::add_edge(const int from, const int to){
-    vertex *f = (graph.find(from)->second);
-    vertex *t = (graph.find(to)->second);
+    std::shared_ptr<vertex> f = (graph.find(from)->second);
+    std::shared_ptr<vertex> t = (graph.find(to)->second);
     f->outputs.push_back(t);
     t->inputs.push_back(f);
 }
@@ -42,7 +41,7 @@ bool Graph::is_acyclic(Graph g){
     return true;
 }
 
-bool Graph::visit(vertex *v){
+bool Graph::visit(std::shared_ptr<vertex> v){
     if(v->color == Color::BLACK){
         return true;
     }
@@ -112,7 +111,7 @@ double Graph::get_type_probability(int time, Resource_Type type){
     return sum;
 }
 
-double Graph::calc_self_force(int j, vertex* v){
+double Graph::calc_self_force(int j, std::shared_ptr<vertex> v){
     double sum = 0.0;
     //sum all possible times in time frame
     for(int i = v->time_frame.first; i <= v->time_frame.second; i++){
@@ -127,11 +126,11 @@ double Graph::calc_self_force(int j, vertex* v){
     return sum;
 }
 
-double Graph::calc_predecessor_force(int j, vertex* v){
+double Graph::calc_predecessor_force(int j, std::shared_ptr<vertex> v){
     return 0.0;
 }
 
-double Graph::calc_successor_force(int j, vertex* v){
+double Graph::calc_successor_force(int j, std::shared_ptr<vertex> v){
     return 0.0;
 }
 

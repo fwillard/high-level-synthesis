@@ -34,7 +34,7 @@ void Scheduler::force_directed(Graph g, int lambda){
         
         //calc min force cycle for each vertex
         for(auto v : g.graph){
-            vertex* u = v.second;
+            std::shared_ptr<vertex> u = v.second;
             //if unscheduled
             if(u->cycle == -1){
                 u->total_force = std::numeric_limits<double>::max();
@@ -54,7 +54,7 @@ void Scheduler::force_directed(Graph g, int lambda){
         }
         
         //schedule minimum force node
-        vertex* min_vertex = g.graph[0];
+        std::shared_ptr<vertex> min_vertex = g.graph[0];
         for(auto v : g.graph){
             if(v.second->total_force < min_vertex->total_force){
                 min_vertex = v.second;
@@ -69,7 +69,7 @@ Graph Scheduler::asap(Graph g){
     g.graph.begin()->second->cycle = 0;
     
     while(g.graph.rbegin()->second->cycle == -1){
-        vertex *v = find_unscheduled_asap(&g);
+        std::shared_ptr<vertex> v = find_unscheduled_asap(&g);
         int max = 0;
         for(auto u : v->inputs){
             int temp = u->cycle + u->delay;
@@ -85,7 +85,7 @@ Graph Scheduler::asap(Graph g){
 Graph Scheduler::alap(Graph g, int lambda){
     g.graph.rbegin()->second->cycle = lambda + 1;
     while(g.graph.begin()->second->cycle == -1){
-        vertex *v = find_unscheduled_alap(&g);
+        std::shared_ptr<vertex> v = find_unscheduled_alap(&g);
         int min = INT_MAX;
         for(auto u : v->outputs){
             int temp = u->cycle - v->delay;
@@ -102,7 +102,7 @@ Graph Scheduler::alap(Graph g, int lambda){
     return g;
 }
 
-vertex* Scheduler::find_unscheduled_asap(Graph *g){
+std::shared_ptr<vertex> Scheduler::find_unscheduled_asap(Graph *g){
     for(auto v : g->graph){
         bool scheduled = false;
         for(auto u : v.second->inputs){
@@ -118,7 +118,7 @@ vertex* Scheduler::find_unscheduled_asap(Graph *g){
     throw "No nodes able to be scheduled";
 }
 
-vertex* Scheduler::find_unscheduled_alap(Graph *g){
+std::shared_ptr<vertex> Scheduler::find_unscheduled_alap(Graph *g){
     for(auto v : g->graph){
         bool scheduled = true;
         for(auto u : v.second->outputs){
@@ -137,9 +137,9 @@ void Scheduler::print_schedule(Graph g){
     int time = 0;
     while(!g.graph.empty()){
         std::cout << "Time " << time << ": ";
-        std::map<int, vertex*>::iterator it=g.graph.begin();
+        std::map<int, std::shared_ptr<vertex>>::iterator it=g.graph.begin();
         while(it!=g.graph.end()){
-            vertex* v = it->second;
+            std::shared_ptr<vertex> v = it->second;
             if(v->cycle == time){
                 std::cout << v->id << " ";
                 g.graph.erase(it);
