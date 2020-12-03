@@ -8,24 +8,69 @@
 #include "scheduling.hpp"
 
 void Scheduler::force_directed(Graph g, int lambda){
-    Graph g_asap = asap(g);
+    //create list of unscheduled nodes
+    int unscheduled_count = g.graph.size();
     
-    std::cout << "ASAP schedule: " << std::endl;
-    print_schedule(g_asap);
-    std::cout << std::endl;
-    
-    Graph g_alap = alap(g, lambda);
-    
-    std::cout << "ALAP schedule: " << std::endl;
-    print_schedule(g_alap);
-    std::cout << std::endl;
+    while(unscheduled_count > 0){
+        //generate asap schedule
+        Graph g_asap = asap(g);
+        
+        
+        std::cout << "ASAP schedule: " << std::endl;
+        print_schedule(g_asap);
+        std::cout << std::endl;
+        
+        //generate alap schedule
+        Graph g_alap = alap(g, lambda);
+        
+        std::cout << "ALAP schedule: " << std::endl;
+        print_schedule(g_alap); 
+        std::cout << std::endl;
+        
+        for(auto v : g.graph){
+            //calc time frames for each operation
+            v.second->time_frame = std::make_pair(g_asap.graph[v.first]->cycle, g_alap.graph[v.first]->cycle);
+        }
+        
+        //calc min force cycle for each vertex
+        for(auto v : g.graph){
+            std::shared_ptr<vertex> u = v.second;
+            //if unscheduled
+            if(u->cycle == -1){
+                u->total_force = std::numeric_limits<double>::max();
+                for(int i = u->time_frame.first; i <= u->time_frame.second; i++){
+                    double self_force = g.calc_self_force(i, u);
+                    double pred_force = g.calc_predecessor_force(i, u);
+                    double succ_force = g.calc_successor_force(i, u);
+                    
+                    double total_force = self_force + pred_force + succ_force;
+                    
+                    if(total_force < u->total_force){
+                        u->total_force = total_force;
+                        u->min_force_cycle = i;
+                    }
+                }
+            }
+        }
+        
+        //schedule minimum force node
+        std::shared_ptr<vertex> min_vertex = g.graph[0];
+        for(auto v : g.graph){
+            if(v.second->total_force < min_vertex->total_force){
+                min_vertex = v.second;
+            }
+        }
+
+        min_vertex->cycle = min_vertex->min_force_cycle;
+        unscheduled_count--;
+    }
 }
 
 Graph Scheduler::asap(Graph g){
     g.graph.begin()->second->cycle = 0;
     
     while(g.graph.rbegin()->second->cycle == -1){
-        vertex *v = find_unscheduled_asap(&g);
+        std::shared_ptr<vertex> v = find_unscheduled_asap(&g);
         int max = 0;
         for(auto u : v->inputs){
             int temp = u->cycle + u->delay;
@@ -37,10 +82,11 @@ Graph Scheduler::asap(Graph g){
     }
     return g;
 }
+
 Graph Scheduler::alap(Graph g, int lambda){
     g.graph.rbegin()->second->cycle = lambda + 1;
     while(g.graph.begin()->second->cycle == -1){
-        vertex *v = find_unscheduled_alap(&g);
+        std::shared_ptr<vertex> v = find_unscheduled_alap(&g);
         int min = INT_MAX;
         for(auto u : v->outputs){
             int temp = u->cycle - v->delay;
@@ -57,7 +103,7 @@ Graph Scheduler::alap(Graph g, int lambda){
     return g;
 }
 
-vertex* Scheduler::find_unscheduled_asap(Graph *g){
+std::shared_ptr<vertex> Scheduler::find_unscheduled_asap(Graph *g){
     for(auto v : g->graph){
         bool scheduled = false;
         for(auto u : v.second->inputs){
@@ -73,7 +119,7 @@ vertex* Scheduler::find_unscheduled_asap(Graph *g){
     throw "No nodes able to be scheduled";
 }
 
-vertex* Scheduler::find_unscheduled_alap(Graph *g){
+std::shared_ptr<vertex> Scheduler::find_unscheduled_alap(Graph *g){
     for(auto v : g->graph){
         bool scheduled = true;
         for(auto u : v.second->outputs){
@@ -92,9 +138,9 @@ void Scheduler::print_schedule(Graph g){
     int time = 0;
     while(!g.graph.empty()){
         std::cout << "Time " << time << ": ";
-        std::map<int, vertex*>::iterator it=g.graph.begin();
+        std::map<int, std::shared_ptr<vertex>>::iterator it=g.graph.begin();
         while(it!=g.graph.end()){
-            vertex* v = it->second;
+            std::shared_ptr<vertex> v = it->second;
             if(v->cycle == time){
                 std::cout << v->id << " ";
                 g.graph.erase(it);

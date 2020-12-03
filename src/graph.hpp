@@ -11,7 +11,9 @@
 #include <iostream>
 #include <map>
 #include <vector>
-enum class Resource_Type{
+#include <memory>
+
+enum class Resource_Type : int{
     ADDER,
     MULTIPLIER,
     LOGICAL,
@@ -19,18 +21,21 @@ enum class Resource_Type{
     NOP
 };
 
-enum class Color{
+enum class Color : int{
     WHITE,
     GRAY,
     BLACK
 };
 
 struct vertex{
-    std::vector<vertex*> outputs;
-    std::vector<vertex*> inputs;
+    std::vector<std::shared_ptr<vertex>> outputs;
+    std::vector<std::shared_ptr<vertex>> inputs;
     int id;
     int cycle = -1;
     int delay;
+    double total_force;
+    int min_force_cycle = -1;
+    std::pair<int, int> time_frame;
     Resource_Type type;
     Color color;
     vertex(int i, Resource_Type t) : id(i), type(t) {
@@ -41,22 +46,26 @@ struct vertex{
                 delay = 1;
                 break;
             case Resource_Type::MULTIPLIER:
-                delay = 2;
+//                delay = 2;
+                delay = 1;
                 break;
             case Resource_Type::DIVIDER:
-                delay = 3;
+//                delay = 3;
+                delay = 1;
                 break;
         }
     }
+    
+    double get_op_probability(int);
 };
 
 class Graph{
 private:
-    static bool visit(vertex*);
+    static bool visit(std::shared_ptr<vertex>);
     void deep_copy(const Graph&);
 public:
     //public members
-    typedef std::map<int, vertex *> vertex_map;
+    using vertex_map = std::map<int, std::shared_ptr<vertex>>;
     vertex_map graph;
     
     //set up functions
@@ -65,6 +74,10 @@ public:
     
     //algorithms
     static bool is_acyclic(Graph);
+    double get_type_probability(int, Resource_Type);
+    double calc_self_force(int, std::shared_ptr<vertex>);
+    double calc_predecessor_force(int, std::shared_ptr<vertex>);
+    double calc_successor_force(int, std::shared_ptr<vertex>);
     
     //default constructor
     Graph(){};
