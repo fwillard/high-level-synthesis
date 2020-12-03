@@ -24,7 +24,7 @@ void Scheduler::force_directed(Graph g, int lambda){
         Graph g_alap = alap(g, lambda);
         
         std::cout << "ALAP schedule: " << std::endl;
-        print_schedule(g_alap);
+        print_schedule(g_alap); 
         std::cout << std::endl;
         
         for(auto v : g.graph){
@@ -62,6 +62,7 @@ void Scheduler::force_directed(Graph g, int lambda){
         }
 
         min_vertex->cycle = min_vertex->min_force_cycle;
+        unscheduled_count--;
     }
 }
 
