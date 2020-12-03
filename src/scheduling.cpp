@@ -95,7 +95,7 @@ Graph Scheduler::alap(Graph g, int lambda){
             }
         }
         if(min < 0){
-            throw "Cannot schedule ALAP with requested latency";
+            throw ScheduleException("Cannot schedule ALAP with requested latency");
         }
         v->cycle = min;
         
@@ -116,7 +116,7 @@ std::shared_ptr<vertex> Scheduler::find_unscheduled_asap(Graph *g){
             return v.second;
         }
     }
-    throw "No nodes able to be scheduled";
+    throw ScheduleException("No nodes able to be scheduled");
 }
 
 std::shared_ptr<vertex> Scheduler::find_unscheduled_alap(Graph *g){
@@ -131,7 +131,7 @@ std::shared_ptr<vertex> Scheduler::find_unscheduled_alap(Graph *g){
             return v.second;
         }
     }
-    throw "No nodes able to be scheduled";
+    throw ScheduleException("No nodes able to be scheduled");
 }
 
 void Scheduler::print_schedule(Graph g){

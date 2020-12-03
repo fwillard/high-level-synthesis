@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include "graph.hpp"
+#include "schedule_exception.hpp"
 
 class Scheduler{
 private:
