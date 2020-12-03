@@ -128,18 +128,6 @@ double Graph::calc_self_force(int j, std::shared_ptr<vertex> v){
 
 double Graph::calc_predecessor_force(int j, std::shared_ptr<vertex> v){
     double sum = 0.0;
-//    for(auto u : v->inputs){
-//        std::pair<int, int> old_time_frame = u->time_frame;
-//
-//        int first = j - u->time_frame.first;
-//
-//        std::pair<int, int> new_time_frame = std::make_pair(first, old_time_frame.second);
-//        u->time_frame = new_time_frame;
-//
-//        sum += calc_self_force(j, u);
-//
-//        u->time_frame = old_time_frame;
-//    }
     return sum;
 }
 
@@ -147,14 +135,13 @@ double Graph::calc_successor_force(int j, std::shared_ptr<vertex> v){
     double sum = 0.0;
     for(auto u : v->outputs){
         
-        int first = (j + u->delay);
+        int first = (j + v->delay);
 
         std::pair<int, int> new_time_frame = std::make_pair(first, u->time_frame.second);
         
         for(int i = new_time_frame.first; i <= new_time_frame.second; i++){
             sum += calc_self_force(i, u);
         }
-
     }
     return sum;
 }
