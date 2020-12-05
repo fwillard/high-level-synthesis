@@ -33,7 +33,6 @@ class Parser{
     private:
         //HelperFunctions
         bool tokenize(const string filename);
-        bool generateOperations();
         int index_by_name(const string name);
         int vector_index(const string &value, const vector<string> &vec);
         int generate_type(const vector<string> &line);
@@ -41,7 +40,8 @@ class Parser{
         bool is_number(string str);
         
         //new functions
-        void generateIO();
+        void generateOperations();
+        void populateOperations();
         bool verbose;
         
         //Private Variables

@@ -60,18 +60,31 @@ bool Parser::tokenize(const string filename){
     return true;
 }
 
-bool Parser::generateOperations(){
-    //loop through all tokens re-populating the list of operations
-    this->operations.clear(); 
+void Parser::generateOperations(){
+    //This generates all of the components, but does not populate them
+
+    int id_count = 1; //Start counting at 1 for the insertion of NOP nodes
 
     //Create the NOP nodes, they will be connected up and added at the end
     Operation INOP = Operation("INOP", Resource_Type::NOP, false, 1, 0);
     Operation OUOP = Operation("OUOP", Resource_Type::NOP, false, 1, -1);
 
-    int id_count = 1; //Start counting at 1 for the insertion of NOP nodes
+    for(vector<string> line : this->tokens){
+        
+    }
+}
+
+void Parser::populateOperations(){
+    //loop through all tokens re-populating the list of operations
+    this->operations.clear(); 
+
+
+
 
     Operation current_component;
     Operation tmp; 
+
+
 
     /* 
     
