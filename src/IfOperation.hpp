@@ -10,10 +10,10 @@ class IfOperation : Operation{
     public:
         IfOperation();
 
-        vector<int> pre_operations;
-        vector<int> post_operations;
-        vector<int> true_operations;
-        vector<int> false_operations;
+        vector<Operation> pre_operations;
+        vector<Operation> post_operations;
+        vector<Operation> true_operations;
+        vector<Operation> false_operations;
 }; 
 
 

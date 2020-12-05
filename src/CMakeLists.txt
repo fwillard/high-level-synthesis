@@ -12,6 +12,10 @@ set ( HLSYN_SOURCES
     Parser.hpp
     ParserException.cpp
     ParserException.hpp
+    Operation.cpp
+    Operation.hpp
+    IfOperation.cpp
+    IfOperation.hpp   
     )
 
 add_executable(hlsyn ${HLSYN_SOURCES})

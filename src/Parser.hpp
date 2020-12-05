@@ -8,6 +8,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <tuple>
 #include <map>
 
 #include "ParserException.hpp"
@@ -22,13 +23,14 @@ class Parser{
         //Public functions
         Parser();
         ~Parser();
-        bool parse(const string filename);
+        void parse(const string filename);
         void print_operations();
         Graph get_graph();
         void setVerbosity(bool v);
         
         //Public Variables
         map<int,Operation> operations;
+        map<int,vector<int>> states;   //keeps track of which operation ID pertains to which state
                 
     private:
         //HelperFunctions
@@ -40,12 +42,15 @@ class Parser{
         bool is_number(string str);
         
         //new functions
-        void generateOperations();
-        void populateOperations();
+        tuple<Operation,Operation> generateIO();
+        void generateOperations(vector<vector<string>> tokens);
+        tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> getBrackets(vector<vector<string>> vector);
         bool verbose;
         
         //Private Variables
-        vector<vector<string> > tokens;
+        vector<vector<string>> tokens;
+        Operation INOP;
+        Operation OUOP;
 };
 
 #endif

@@ -8,8 +8,10 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <climits>
 #include "graph.hpp"
 #include "scheduling.hpp"
+#include "Parser.hpp"
 
 int main(int argc, char** argv){
     
@@ -30,7 +32,11 @@ int main(int argc, char** argv){
         std::cerr << "Invalid value for latency: " << argv[2] << "\nValue must be a valid int" <<  std::endl;
         return 1;
     }
-    
+
+    Parser p;
+    p.parse(argv[1]);
+
+/*    
     Graph g;
     
     g.add_vertex(0, Resource_Type::NOP);
@@ -80,6 +86,6 @@ int main(int argc, char** argv){
     s.force_directed(g, latency);
 
     
-    
+    */
     return 0;
 }
