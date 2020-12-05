@@ -46,12 +46,10 @@ struct vertex{
                 delay = 1;
                 break;
             case Resource_Type::MULTIPLIER:
-//                delay = 2;
-                delay = 1;
+                delay = 2;
                 break;
             case Resource_Type::DIVIDER:
-//                delay = 3;
-                delay = 1;
+                delay = 3;
                 break;
         }
     }

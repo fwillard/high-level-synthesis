@@ -11,7 +11,7 @@ void Scheduler::force_directed(Graph g, int lambda){
     //create list of unscheduled nodes
     int unscheduled_count = g.graph.size();
     
-    while(unscheduled_count > 0){
+//    while(unscheduled_count > 0){
         //generate asap schedule
         Graph g_asap = asap(g);
         
@@ -63,7 +63,7 @@ void Scheduler::force_directed(Graph g, int lambda){
 
         min_vertex->cycle = min_vertex->min_force_cycle;
         unscheduled_count--;
-    }
+//    }
 }
 
 Graph Scheduler::asap(Graph g){
