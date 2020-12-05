@@ -8,6 +8,10 @@ set ( HLSYN_SOURCES
     graph.cpp
     schedule_exception.hpp
     schedule_exception.cpp
+    Parser.cpp
+    Parser.hpp
+    ParserException.cpp
+    ParserException.hpp
     )
 
 add_executable(hlsyn ${HLSYN_SOURCES})
