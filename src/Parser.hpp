@@ -30,14 +30,13 @@ class Parser{
         
         //Public Variables
         map<int,Operation> operations;
-        map<int,vector<int>> states;   //keeps track of which operation ID pertains to which state
+        vector<vector<int>> states;   //keeps track of which operation ID pertains to which state
                 
     private:
         //HelperFunctions
+        int id_by_name(const string name);
         bool tokenize(const string filename);
-        int index_by_name(const string name);
-        int vector_index(const string &value, const vector<string> &vec);
-        int generate_type(const vector<string> &line);
+        Resource_Type generate_type(string sym);
         int extract_int(const string str);
         bool is_number(string str);
         

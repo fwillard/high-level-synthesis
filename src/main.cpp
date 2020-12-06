@@ -34,6 +34,7 @@ int main(int argc, char** argv){
     }
 
     Parser p;
+    p.setVerbosity(true);
     p.parse(argv[1]);
 
 /*    

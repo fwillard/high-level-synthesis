@@ -6,14 +6,12 @@
 using namespace std;
  
 //Struct containing information for each component in the circuit including inputs and outputs
-class IfOperation : Operation{
+class IfOperation : public Operation{
     public:
         IfOperation();
+        IfOperation(int condition, int t_state, int f_state);
 
-        vector<Operation> pre_operations;
-        vector<Operation> post_operations;
-        vector<Operation> true_operations;
-        vector<Operation> false_operations;
+        
 }; 
 
 
