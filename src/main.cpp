@@ -32,7 +32,8 @@ int main(int argc, char** argv){
     }
     
     Graph g;
-    
+
+    //graph from HLS scheduling slide, NOTE: this requires all delays to be 1 cycle
     g.add_vertex(0, Resource_Type::NOP);
     g.add_vertex(1, Resource_Type::MULTIPLIER);
     g.add_vertex(2, Resource_Type::MULTIPLIER);
@@ -69,6 +70,7 @@ int main(int argc, char** argv){
     g.add_edge(9, 12);
     g.add_edge(11, 12);
     
+// graph of hls_test1.c
 //    g.add_vertex(0, Resource_Type::NOP);
 //    g.add_vertex(1, Resource_Type::ADDER);
 //    g.add_vertex(2, Resource_Type::ADDER);
