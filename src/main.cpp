@@ -8,8 +8,10 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <climits>
 #include "graph.hpp"
 #include "scheduling.hpp"
+#include "Parser.hpp"
 
 int main(int argc, char** argv){
     
@@ -30,7 +32,14 @@ int main(int argc, char** argv){
         std::cerr << "Invalid value for latency: " << argv[2] << "\nValue must be a valid int" <<  std::endl;
         return 1;
     }
-    
+
+    Parser p;
+    p.setVerbosity(true);
+    p.parse(argv[1]);
+
+    Graph g = p.get_graph();
+
+/*    
     Graph g;
 
     //graph from HLS scheduling slide, NOTE: this requires all delays to be 1 cycle
@@ -101,9 +110,6 @@ int main(int argc, char** argv){
     }
     
     Scheduler s;
-    s.force_directed(g, latency);
-
-    
-    
+    s.force_directed(g, latency);*/
     return 0;
 }

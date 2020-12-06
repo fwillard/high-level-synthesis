@@ -9,6 +9,8 @@
 #define scheduling_hpp
 
 #include <iostream>
+#include <limits>
+#include <climits>
 #include "graph.hpp"
 #include "schedule_exception.hpp"
 
