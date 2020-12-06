@@ -104,12 +104,12 @@ int main(int argc, char** argv){
     
 //    g.add_edge(4, 1); //creates a cycle;
     */
-    // if(!Graph::is_acyclic(g)){
-    //     std::cerr << "Graph is not acyclic" << std::endl;
-    //     return 1;
-    // }
+    if(!Graph::is_acyclic(g)){
+        std::cerr << "Graph is not acyclic" << std::endl;
+        return 1;
+    }
     
-    // Scheduler s;
-    // s.force_directed(g, latency);
+    Scheduler s;
+    s.force_directed(g, latency);
     return 0;
 }

@@ -9,9 +9,7 @@ using namespace std;
 class IfOperation : public Operation{
     public:
         IfOperation();
-        IfOperation(int condition, int t_state, int f_state);
-
-        
+        IfOperation(int condition, int t_state, int f_state);  
 }; 
 
 

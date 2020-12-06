@@ -468,10 +468,8 @@ bool Parser::is_number(string str){
 }
 
 Graph Parser::get_graph(){
+    string types[] = {"ADDER", "MULTIPLIER", "LOGICAL", "DIVIDER", "NOP"};//for debugging
     Graph g;
-
-   // g.add_vertex(12, Resource_Type::NOP);
-   // g.add_edge(0, 1);
 
     map<int, Operation>::iterator it; //iterator to parse through map
 
@@ -480,6 +478,7 @@ Graph Parser::get_graph(){
         if(it->second.type == Resource_Type::NOP && !(it->second.name == "INOP" || it->second.name == "OUOP"))
             continue;
         g.add_vertex(it->second.id, it->second.type);
+        cout << "Add Vertex: (" << it->second.id << " , " << types[(int)it->second.type] << ")\n";//for debugging
     }
 
     for(it = this->operations.begin(); it != this->operations.end(); it++){ //loop through all operators again, now connecting them using predicessors
@@ -487,6 +486,7 @@ Graph Parser::get_graph(){
             continue;
         for(int i : it->second.predisessors){
             g.add_edge(it->second.id, i);
+            cout << "Add Edge: (" << it->second.id << " , " << i << ")\n";//for debugging
         }   
     }
 
