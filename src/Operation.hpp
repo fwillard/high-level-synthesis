@@ -22,6 +22,7 @@ class Operation{
         string symbol = "none";                     //the symbol of the operation (i.e "+" or "<<"), used for verilog
         int output_id, arg0_id, arg1_id, arg2_id;   //these are the id's of arguments, used for verilog 
         bool isif = false;                          //Weather or not this is used in an if block, which will give the verilog sequential structrue
+        vector<int> predisessors;
 
         int condition_id;
         int true_state;

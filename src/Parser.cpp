@@ -8,6 +8,19 @@ Parser::~Parser(){
 
 }
 
+//helper function usede in predicessor calculations
+vector<int> mergeVectors(vector<int> a,vector<int> b){
+    vector<int> ret = a;
+    ret.insert( ret.end(), b.begin(), b.begin() + b.size() );
+
+    vector<int>::iterator ip;
+    sort(ret.begin(), ret.end());
+    ip = std::unique(ret.begin(), ret.end()); 
+    ret.resize(std::distance(ret.begin(), ip));
+
+    return ret;
+}
+
 void Parser::parse(const string filename){    
     
     tokenize(filename);
@@ -26,8 +39,6 @@ void Parser::parse(const string filename){
     this->operations.clear(); 
     this->states.clear();
 
-    
-
     tuple<Operation, Operation> NOPs = generateIO(); //generare all IO operations, these dont impact the graph
 
     //Add INOP first
@@ -38,14 +49,35 @@ void Parser::parse(const string filename){
 
     generateOperations(this->tokens);
 
+    
+
     //Add OUOP last
     vector<int> end_state = {(int)operations.size()};
-    this->states.push_back(end_state);
     Operation OUOP = get<1>(NOPs);
     OUOP.id = (int)operations.size();
-    this->operations.insert({(int)operations.size(),OUOP});
+    for(auto const& it : this->operations){//Add predecessors for OUOP
+        if(it.second.symbol == "output"){
+            vector<int> tmp;
+            OUOP.predisessors = mergeVectors(OUOP.predisessors,getPreds(it.second.id,tmp));
+        }
+    }
+    this->states.push_back(end_state);
+    this->operations.insert({(int)operations.size(),OUOP}); 
 
-    
+    //Add predecessors for all if blocks
+    for(vector<int> state : this->states){
+        if(this->operations.at(state.at(0)).symbol == "if"){ //if this state has an if block, it will be alone
+            for( int op : this->states.at(this->operations.at(state.at(0)).true_state) ){ //loop through true block
+                this->operations.at(op).predisessors.push_back(state.at(0)); //add id of if
+                this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
+            } 
+            for(int op : this->states.at(this->operations.at(state.at(0)).true_state)){ //loop through false block, even if it is OUOP
+                this->operations.at(op).predisessors.push_back(state.at(0)); //add id of if
+                this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
+            }
+            
+        }
+    }
 
     //Print everything to console (if set) for debugging and visibility 
     if(this->verbose){
@@ -122,6 +154,7 @@ tuple<Operation,Operation> Parser::generateIO(){
                     namestr.erase(pos, 1);
 
                 new_op.name = namestr;
+                new_op.id = operations.size()+1;
                 this->operations.insert({operations.size()+1,new_op});
             }
         }
@@ -204,13 +237,29 @@ tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> Pars
     return make_tuple(if_vector, else_vector, remainder_vector); 
 }
 
-void printTokens(vector<vector<string>> t){
-    for(vector<string> line : t){
-        for(string s : line){
-            cout << s << " ";
+vector<int> Parser::getPreds(int target, vector<int> cstate){ 
+//returns all operable nodes that output the target id, this is used during generateOperations only
+//this function does not add if statements as predicessors 
+
+    vector<int> preds;
+    if(this->operations.at(target).symbol == "input"){ //if target is an input, the pred is INOP
+        preds.push_back(0); //point to INOP
+    } 
+    else{ //if target is an output or variable, loop through all existing nodes in all states 
+        for(int op = cstate.size()-1; op >=0; op--){ //loop through unsaved "current_state" backwards
+            if(this->operations.at(cstate.at(op)).output_id == target){
+                preds.push_back(cstate.at(op));
+            }
         }
-        cout << endl;
+        for(vector<int> state : this->states){ //loop through saved states forwards, shouldnt make a difference
+            for(int op = state.size()-1; op >=0; op--){ 
+                if(this->operations.at(state.at(op)).output_id == target){
+                    preds.push_back(state.at(op));
+                }
+            }
+        }
     }
+    return preds;
 }
 
 void Parser::generateOperations(vector<vector<string>> tokens){
@@ -238,9 +287,10 @@ void Parser::generateOperations(vector<vector<string>> tokens){
             int id = this->operations.size(); //seperated out so this can be used after recursive call
             IfOperation if_op(id_by_name(line.at(2)), this->states.size(), -1);
             if_op.id = id;
-            if_op.name = "IF_" + to_string(this->states.size());
+            if_op.name = "IF_" + line.at(2);
             if_op.true_state = this->states.size()+1;
             if_op.symbol = "if";
+            if_op.predisessors = getPreds(id_by_name(line.at(2)),current_state); //only one argument to check
             this->operations.insert({id,if_op});
 
             current_state.push_back(if_op.id);
@@ -264,19 +314,29 @@ void Parser::generateOperations(vector<vector<string>> tokens){
             }else{
                 this->operations.at(id).false_state = this->states.size();
             }
+
         }
         else{
             //set parsed members
+            vector<int> preds; //vector to keep track of preds
             current_op.id = this->operations.size();
             current_op.name = "OP_" + to_string(this->operations.size()); 
             current_op.output_id = id_by_name(line.at(0));
             current_op.arg0_id = id_by_name(line.at(2)); //Assignment only
+            preds = getPreds(id_by_name(line.at(2)),current_state);
             current_op.symbol = line.at(3);
-            if(line.size() > 3) //Arithmetic
+            if(line.size() > 3){ //Arithmetic
                 current_op.arg1_id = id_by_name(line.at(4));
-            if(line.size() > 5) //Comparitor
+                preds = mergeVectors(preds,getPreds(id_by_name(line.at(4)),current_state));
+            }
+            if(line.size() > 5){ //Comparitor
                 current_op.arg2_id = id_by_name(line.at(6));
+                preds = mergeVectors(preds,getPreds(id_by_name(line.at(6)),current_state));
+            }else{
+                current_op.arg2_id = -1;
+            }
 
+            current_op.predisessors = preds;
             current_op.type = generate_type(line.at(3));
             current_op.true_state = this->states.size()+1; //use the true op for non IF operations to indicate the next state
 
@@ -321,37 +381,67 @@ void Parser::print_operations(){
     map<int, Operation>::iterator it;
 
     //create title block
-    cout << left << setw(2) << "ID" << "  |  "; 
-    cout << left << setw(7) << "NAME" << "  |  ";
-    cout << left << setw(10) << "TYPE" << "  |  ";
-    cout << left << setw(8) << "SYM" << "  |  ";
-    cout << left << setw(2) << "TS" << "  |  ";
-    cout << left << setw(2) << "FS" << "  |";
+    cout << left << setw(2) << "ID" << " | "; 
+    cout << left << setw(7) << "NAME" << " | ";
+    cout << left << setw(10) << "TYPE" << " | ";
+    cout << left << setw(8) << "SYM" << " | ";
+    cout << left << setw(2) << "TS" << " | ";
+    cout << left << setw(2) << "FS" << " | ";
+    cout << left << setw(6) << "OUTPUT" << " | ";
+    cout << left << setw(6) << "ARG 0" << " | ";
+    cout << left << setw(6) << "ARG 1" << " | ";
+    cout << left << setw(6) << "ARG 2" << " | ";
+    cout << left << "PREDS" << " | ";
     //cout << "( Outputs | Inputs )\n";
     cout << "\n";
-    cout << setfill('_') << setw(75) << "";
+    cout << setfill('_') << setw(120) << "";
     cout << setfill(' ');
     cout << "\n";
 
     //output all components
     int count = 0;
     for( vector<int> state : this->states){
-        cout << right << setfill('-') << setw(75) << "STATE " + to_string(count); //output the current state number
+        cout << right << setfill('-') << setw(120) << "STATE " + to_string(count); //output the current state number
         count++;
         cout << setfill(' ');
         cout << "\n";
         for( int i : state){
             Operation op = this->operations.at(i);
-            cout << left << setw(2) << op.id << "  |  "; 
-            cout << left << setw(7) << op.name << "  |  " ;
-            cout << left << setw(10) << types[(int)op.type] << "  |  ";
-            cout << left << setw(8) << op.symbol << "  |  ";
-            cout << left << setw(2) << op.true_state << "  |  ";
+            cout << left << setw(2) << op.id << " | "; 
+            cout << left << setw(7) << op.name << " | " ;
+            cout << left << setw(10) << types[(int)op.type] << " | ";
+            cout << left << setw(8) << op.symbol << " | ";
+            cout << left << setw(2) << op.true_state << " | ";
             if(!op.isif){    
-                cout << left << setw(2) << "" << "  |  ";
+                cout << left << setw(2) << "" << " | ";
             }
             else{
-                cout << left << setw(2) << op.false_state << "  |  ";
+                cout << left << setw(2) << op.false_state << " | ";
+            }
+
+            if(op.output_id >= 0 && !op.isif){
+                cout << left << setw(6) << this->operations.at(op.output_id).name << " | ";
+            }else{
+                cout << left << setw(6) << "" << " | ";
+            }
+            if(op.arg0_id >= 0 && !op.isif){
+                cout << left << setw(6) << this->operations.at(op.arg0_id).name << " | ";
+            }else{
+                cout << left << setw(6) << "" << " | ";
+            }
+            if(op.arg1_id >= 0 && !op.isif){
+                cout << left << setw(6) << this->operations.at(op.arg1_id).name << " | ";
+            }else{
+                cout << left << setw(6) << "" << " | ";
+            }
+            if(op.arg2_id >= 0 && !op.isif){
+                cout << left << setw(6) << this->operations.at(op.arg2_id).name << " | ";
+            }else{
+                cout << left << setw(6) << "" << " | ";
+            }
+            
+            for(int p : op.predisessors){
+                cout << p << ", ";
             }
             cout << "\n";
         }
@@ -387,12 +477,18 @@ Graph Parser::get_graph(){
 
     //add all operators to the graph (this excludes inputs, outputs, and variables)
     for(it = this->operations.begin(); it != this->operations.end(); it++){ //ignore empty
-        if(it->second.type == Resource_Type::NOP && !(it->second.symbol == "INOP" || it->second.symbol == "OUOP"))
+        if(it->second.type == Resource_Type::NOP && !(it->second.name == "INOP" || it->second.name == "OUOP"))
             continue;
         g.add_vertex(it->second.id, it->second.type);
     }
 
-
+    for(it = this->operations.begin(); it != this->operations.end(); it++){ //loop through all operators again, now connecting them using predicessors
+        if(it->second.type == Resource_Type::NOP && !(it->second.name == "OUOP")) //INOP has no preds
+            continue;
+        for(int i : it->second.predisessors){
+            g.add_edge(it->second.id, i);
+        }   
+    }
 
     return g;
 }

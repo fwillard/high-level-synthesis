@@ -37,6 +37,8 @@ int main(int argc, char** argv){
     p.setVerbosity(true);
     p.parse(argv[1]);
 
+    Graph g = p.get_graph();
+
 /*    
     Graph g;
     
@@ -84,9 +86,6 @@ int main(int argc, char** argv){
     }
     
     Scheduler s;
-    s.force_directed(g, latency);
-
-    
-    */
+    s.force_directed(g, latency);*/
     return 0;
 }

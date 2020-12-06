@@ -39,6 +39,7 @@ class Parser{
         Resource_Type generate_type(string sym);
         int extract_int(const string str);
         bool is_number(string str);
+        vector<int> getPreds(int target, vector<int> cstate);
         
         //new functions
         tuple<Operation,Operation> generateIO();
