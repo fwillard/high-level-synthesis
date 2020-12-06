@@ -35,6 +35,12 @@ void Scheduler::force_directed(Graph g, int lambda){
         //calc min force cycle for each vertex
         for(auto v : g.graph){
             std::shared_ptr<vertex> u = v.second;
+
+            //ignore NOPs
+            if(v.second->type == Resource_Type::NOP){
+                continue;
+            }
+            
             //if unscheduled
             if(u->cycle == -1){
                 u->total_force = std::numeric_limits<double>::max();
@@ -54,8 +60,11 @@ void Scheduler::force_directed(Graph g, int lambda){
         }
         
         //schedule minimum force node
-        std::shared_ptr<vertex> min_vertex = g.graph[0];
+        std::shared_ptr<vertex> min_vertex = g.graph[1];
         for(auto v : g.graph){
+            if(v.second->type == Resource_Type::NOP){
+                continue;
+            }
             if(v.second->total_force < min_vertex->total_force){
                 min_vertex = v.second;
             }
