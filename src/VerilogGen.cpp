@@ -2,10 +2,15 @@
 
 VerilogGen::VerilogGen(Parser *p){
     this->parser = p;
+    this->verbose = false;
 }
 
 VerilogGen::~VerilogGen(){
    // delete this->parser; //prevent dangling pointer
+}
+
+void VerilogGen::setVerbosity(bool v){
+    this->verbose = v;
 }
 
 void VerilogGen::generateHeader(string filename, stringstream &ss){
@@ -185,10 +190,30 @@ void VerilogGen::printOperation(string indent, stringstream &ss, int op){
     ss << ";" << endl;
 }
 
-void VerilogGen::generate(string filename){
+void VerilogGen::writeFile(string filename, stringstream &ss){
+        std::ofstream outFile;
+		outFile.open(filename);
+
+		if (!outFile) 
+		{
+			cerr << "Can't open output file " << filename << endl;
+			exit(1);
+		}
+
+        string outstr = ss.str();
+        if(this->verbose){
+            cout << "\n\nVerilog File Contents\n===========================================================================\n\n";
+            cout << outstr;
+        }
+
+		outFile << outstr;
+		outFile.close();
+}
+
+void VerilogGen::generate(string infile, string outfile){
 
 	std::stringstream ss; //stream used for writing
-    generateHeader(filename, ss); //module header
+    generateHeader(infile, ss); //module header
     generateIO(ss);
     ss  << endl << endl;
 
@@ -203,6 +228,6 @@ void VerilogGen::generate(string filename){
     //end file
     ss << "endmodule";
     ss  << endl << endl;
-
-    cout << ss.str();
+    
+    writeFile(outfile,ss);
 }

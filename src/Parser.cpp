@@ -317,7 +317,6 @@ void Parser::generateOperations(vector<vector<string>> tokens){
             }else{
                 this->operations.at(id).false_state = this->states.size();
             }
-
         }
         else{
             //set parsed members

@@ -36,10 +36,11 @@ int main(int argc, char** argv){
 
     Parser p;
     p.setVerbosity(true);
-    p.parse(argv[1]);
+    p.parse(c_file);
 
     VerilogGen v(&p);
-    v.generate(argv[1]);
+    v.setVerbosity(true);
+    v.generate(c_file,verilog_file);
 
     Graph g = p.get_graph();
 
