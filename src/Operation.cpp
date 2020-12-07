@@ -4,7 +4,7 @@ Operation::Operation(){
 
 }
 
-Operation::Operation(string n, Resource_Type t, bool sn, int width, int id, int out, int a0, int a1, int a2, string sym){
+Operation::Operation(std::string n, Resource_Type t, bool sn, int width, int id, int out, int a0, int a1, int a2, std::string sym){
     this->name = n;
     this->type = t;
     this->sign = sn;

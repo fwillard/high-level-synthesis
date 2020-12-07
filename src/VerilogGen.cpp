@@ -30,11 +30,11 @@ void VerilogGen::generateHeader(std::string filename, std::stringstream &ss){
 	std::string circuitName = temp.substr(0, temp.size() - 4);
 
     // up front stuff
-	ss << "`timescale 1ns / 1ps" << endl << endl;
+	ss << "`timescale 1ns / 1ps" <<std::endl <<std::endl;
 	ss << "module circuit_" << circuitName << "(";
 
     // have all the outputs, inputs, wires shown in the module parameters
-    map<int, Operation>::iterator it;
+    std::map<int, Operation>::iterator it;
     for(it = this->parser->operations.begin(); it != this->parser->operations.end(); it++){
         if(it->second.symbol == "input" || it->second.symbol == "output"){
             ss << it->second.name;
@@ -43,24 +43,24 @@ void VerilogGen::generateHeader(std::string filename, std::stringstream &ss){
     }
 
 	// add clock and reset for REG
-	ss << "Done, Start, Clk, Rst);" << endl;
+	ss << "Done, Start, Clk, Rst);" <<std::endl;
 }
 
 void VerilogGen::generateIO(std::stringstream &ss){
-    map<int, Operation>::iterator it;
+    std::map<int, Operation>::iterator it;
 
     std::string keywords[3] = {"input","output","reg"};
 
     //inputs
-    map<int,std::string> signed_items;
-    map<int,std::string> items;
+    std::map<int,std::string> signed_items;
+    std::map<int,std::string> items;
     for(std::string keyword : keywords){
         for(it = this->parser->operations.begin(); it != this->parser->operations.end(); it++){
             if(it->second.symbol == keyword){
                 if(it->second.sign){ //signed inputs
                     if(signed_items.find(it->second.datawidth) == signed_items.end()){ //new datawidth
                         if(it->second.datawidth > 1){
-                            signed_items.insert({it->second.datawidth,"\t" + keyword + " signed [" + to_string(it->second.datawidth -1) + ":0] " + it->second.name});
+                            signed_items.insert({it->second.datawidth,"\t" + keyword + " signed [" + std::to_string(it->second.datawidth -1) + ":0] " + it->second.name});
                         }
                         else{
                             signed_items.insert({it->second.datawidth,"\t" + keyword + " signed " + it->second.name});
@@ -73,7 +73,7 @@ void VerilogGen::generateIO(std::stringstream &ss){
                 else{ //unsigned inputs
                     if(items.find(it->second.datawidth) == items.end()){ //new datawidth
                         if(it->second.datawidth > 1){
-                            items.insert({it->second.datawidth,"\t" + keyword + " [" + to_string(it->second.datawidth -1) + ":0] " + it->second.name});
+                            items.insert({it->second.datawidth,"\t" + keyword + " [" + std::to_string(it->second.datawidth -1) + ":0] " + it->second.name});
                         }
                         else{
                             items.insert({it->second.datawidth,"\t" + keyword + " " + it->second.name});
@@ -87,11 +87,11 @@ void VerilogGen::generateIO(std::stringstream &ss){
         }
         //add items to the stream
         for(auto const& it : items){
-            ss << it.second << ";" << endl;
+            ss << it.second << ";" <<std::endl;
         }
         //add signed items to the stream
         for(auto const& it : signed_items){
-            ss << it.second << ";" << endl;
+            ss << it.second << ";" <<std::endl;
         }
 
         items.clear();
@@ -99,29 +99,29 @@ void VerilogGen::generateIO(std::stringstream &ss){
     }
 
     //add state register and done output
-    ss << endl << "\tinput Start;" << endl;
-    ss << "\toutput Done;" << endl;
+    ss <<std::endl << "\tinput Start;" <<std::endl;
+    ss << "\toutput Done;" <<std::endl;
     this->state_size = (int)ceil(log2(this->parser->final_states.size()));
-    ss << "\treg [" << to_string(this->state_size-1) << ":0] state;" << endl; //state register based on the number of states
+    ss << "\treg [" << std::to_string(this->state_size-1) << ":0] state;" <<std::endl; //state register based on the number of states
 }
 
 void VerilogGen::generateInitial(std::stringstream &ss){
-    ss << "\tinitial begin" << endl;
-    ss << "\t\tstate = " << to_string(this->state_size) << "'d0;" << endl;
-    ss << "\tend" << endl;
+    ss << "\tinitial begin" <<std::endl;
+    ss << "\t\tstate = " << std::to_string(this->state_size) << "'d0;" <<std::endl;
+    ss << "\tend" <<std::endl;
 }
 
 void VerilogGen::generateLogic(std::stringstream &ss){
-    ss << "\talways @(state) begin" << endl;
-    ss << "\t\tcase(state)" << endl;
+    ss << "\talways @(state) begin" <<std::endl;
+    ss << "\t\tcase(state)" <<std::endl;
     
-    vector<int> state;
+    std::vector<int> state;
     for(int i = 1; i< this->parser->final_states.size()-1; i++){ //skip first and last state which are static
         state = this->parser->final_states.at(i);
         if(this->parser->operations.at(state.at(0)).symbol == "if" || this->parser->operations.at(state.at(0)).symbol == "NOP") //skip ifs, they are handled in the state control
             continue;
 
-        ss << "\t\t\t" << to_string(this->state_size) << "'d" << i << ":" << endl;//list case
+        ss << "\t\t\t" << std::to_string(this->state_size) << "'d" << i << ":" <<std::endl;//list case
 
         for(int op : state){
             if(this->parser->operations.at(op).symbol != "if" && this->parser->operations.at(op).symbol != "NOP") //skip over if states, they are isued in the state control
@@ -129,47 +129,47 @@ void VerilogGen::generateLogic(std::stringstream &ss){
         }
     }
 
-    ss << "\t\t\t" << this->state_size << "'d" << this->parser->final_states.size()-1 << ":" << endl;
-    ss << "\t\t\t\tDone = 1;" << endl;
+    ss << "\t\t\t" << this->state_size << "'d" << this->parser->final_states.size()-1 << ":" <<std::endl;
+    ss << "\t\t\t\tDone = 1;" <<std::endl;
 
-    ss << "\t\tendcase" << endl; //end case
-    ss << "\tend" << endl;   //end always
+    ss << "\t\tendcase" <<std::endl; //end case
+    ss << "\tend" <<std::endl;   //end always
 }
 
-void VerilogGen::generateControl(stringstream &ss){
-    ss << "\talways @(posedge Clk or posedge Rst) begin" << endl;
-    ss << "\t\tif (Rst)" << endl;
-    ss << "\t\t\tstate = " << to_string(this->state_size) << "'d0;" << endl;
-    ss << "\t\telse" << endl;
-    ss << "\t\t\tcase(state)" << endl;
+void VerilogGen::generateControl(std::stringstream &ss){
+    ss << "\talways @(posedge Clk or posedge Rst) begin" <<std::endl;
+    ss << "\t\tif (Rst)" <<std::endl;
+    ss << "\t\t\tstate = " << std::to_string(this->state_size) << "'d0;" <<std::endl;
+    ss << "\t\telse" <<std::endl;
+    ss << "\t\t\tcase(state)" <<std::endl;
 
     //generate the wait state
-    ss << "\t\t\t\t" << this->state_size << "'d0:" << endl;
-    ss << "\t\t\t\t\t" << "if (Start)" << endl;
-    ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d1;" <<endl;
+    ss << "\t\t\t\t" << this->state_size << "'d0:" <<std::endl;
+    ss << "\t\t\t\t\t" << "if (Start)" <<std::endl;
+    ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d1;" << std::endl;
 
-    vector<int> state;
+    std::vector<int> state;
     for(int i = 1; i< this->parser->final_states.size()-1; i++){ //0 and end state are already taken care of
         state = this->parser->final_states.at(i);
         if(this->parser->operations.at(state.at(0)).symbol == "NOP") //safeguard
             continue;
-        ss << "\t\t\t\t" << to_string(this->state_size) << "'d" << i << ":" << endl;//list case
+        ss << "\t\t\t\t" << std::to_string(this->state_size) << "'d" << i << ":" <<std::endl;//list case
         if(this->parser->operations.at(state.at(0)).symbol == "if"){ //generate if
-            ss << "\t\t\t\t\t" << "if (" << this->parser->operations.at(this->parser->operations.at(state.at(0)).arg0_id).name << ")" << endl;
-            ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(state.at(0)).true_state << ";" << endl;
-            ss << "\t\t\t\t\t" << "else" << endl;
-            ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(state.at(0)).false_state << ";" << endl;
+            ss << "\t\t\t\t\t" << "if (" << this->parser->operations.at(this->parser->operations.at(state.at(0)).arg0_id).name << ")" <<std::endl;
+            ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(state.at(0)).true_state << ";" <<std::endl;
+            ss << "\t\t\t\t\t" << "else" <<std::endl;
+            ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(state.at(0)).false_state << ";" <<std::endl;
         }
         else{
-            ss << "\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(state.at(0)).true_state << ";" << endl;
+            ss << "\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(state.at(0)).true_state << ";" <<std::endl;
         }
     }
 
-    ss << "\t\t\t\t" << this->state_size << "'d" << this->parser->final_states.size()-1 << ":" << endl;
-    ss << "\t\t\t\t\t" << "state = " << this->state_size << "'d0;" <<endl;
+    ss << "\t\t\t\t" << this->state_size << "'d" << this->parser->final_states.size()-1 << ":" <<std::endl;
+    ss << "\t\t\t\t\t" << "state = " << this->state_size << "'d0;" << std::endl;
 
-    ss << "\t\t\tendcase" << endl; //end case
-    ss << "\tend" << endl;   //end always
+    ss << "\t\t\tendcase" <<std::endl; //end case
+    ss << "\tend" <<std::endl;   //end always
 }
 
 void VerilogGen::printOperation(std::string indent, std::stringstream &ss, int op){
@@ -187,7 +187,7 @@ void VerilogGen::printOperation(std::string indent, std::stringstream &ss, int o
     ss << this->parser->operations.at(a1).name;                     //output = arg0 <symbol> arg1
     if(a2 > 0)
         ss << " : "<< this->parser->operations.at(a2).symbol;       //output = arg0 <symbol> arg1 : arg2
-    ss << ";" << endl;
+    ss << ";" <<std::endl;
 }
 
 void VerilogGen::writeFile(std::string filename, std::stringstream &ss){
@@ -196,14 +196,14 @@ void VerilogGen::writeFile(std::string filename, std::stringstream &ss){
 
 		if (!outFile) 
 		{
-			cerr << "Can't open output file " << filename << endl;
+			std::cerr << "Can't open output file " << filename <<std::endl;
 			exit(1);
 		}
 
         std::string outstr = ss.str();
         if(this->verbose){
-            cout << "\n\nVerilog File Contents\n===========================================================================\n\n";
-            cout << outstr;
+            std::cout << "\n\nVerilog File Contents\n===========================================================================\n\n";
+            std::cout << outstr;
         }
 
 		outFile << outstr;
@@ -215,19 +215,19 @@ void VerilogGen::generate(std::string infile, std::string outfile){
 	std::stringstream ss; //stream used for writing
     generateHeader(infile, ss); //module header
     generateIO(ss);
-    ss  << endl << endl;
+    ss  <<std::endl <<std::endl;
 
     generateInitial(ss);
-    ss  << endl << endl;
+    ss  <<std::endl <<std::endl;
 
     generateLogic(ss);
-    ss  << endl << endl;
+    ss  <<std::endl <<std::endl;
 
     generateControl(ss);
-    ss  << endl << endl;
+    ss  <<std::endl <<std::endl;
     //end file
     ss << "endmodule";
-    ss  << endl << endl;
+    ss  <<std::endl <<std::endl;
     
     writeFile(outfile,ss);
 }
