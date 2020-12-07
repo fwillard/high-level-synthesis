@@ -130,7 +130,7 @@ void VerilogGen::generateLogic(stringstream &ss){
     }
 
     ss << "\t\t\t" << this->state_size << "'d" << this->parser->final_states.size()-1 << ":" << endl;
-    ss << "\t\t\t\tdone = 1;" << endl;
+    ss << "\t\t\t\tDone = 1;" << endl;
 
     ss << "\t\tendcase" << endl; //end case
     ss << "\tend" << endl;   //end always

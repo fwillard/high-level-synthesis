@@ -40,13 +40,13 @@ int main(int argc, char** argv){
 
     Graph g = p.get_graph();
     
-    if(!Graph::is_acyclic(g)){
+    /*if(!Graph::is_acyclic(g)){
         std::cerr << "Graph is not acyclic" << std::endl;
         return 1;
-    }
+    }*/
     
-    Scheduler s;
-    s.force_directed(g, latency);
+    /*Scheduler s;
+    s.force_directed(g, latency);*/
 
     p.generateSortedStates(g);
 
