@@ -69,6 +69,7 @@ Graph Scheduler::force_directed(Graph g, int lambda){
         print_schedule(g);
         std::cout << std::endl;
     }
+    return g;
 }
 
 Graph Scheduler::asap(Graph g){

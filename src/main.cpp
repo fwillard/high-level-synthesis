@@ -54,7 +54,6 @@ int main(int argc, char** argv){
     v.setVerbosity(true);
     v.generate(c_file,verilog_file);
 
-    Graph g = p.get_graph();
 
     
 
