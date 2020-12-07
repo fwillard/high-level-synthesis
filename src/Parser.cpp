@@ -498,3 +498,7 @@ Graph Parser::get_graph(){
 void Parser::setVerbosity(bool v){
     this->verbose = v;
 }
+
+void Parser::generateSortedStates(Graph g){
+    this->final_states = this->states; //stub
+}

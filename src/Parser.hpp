@@ -27,11 +27,12 @@ class Parser{
         void print_operations();
         Graph get_graph();
         void setVerbosity(bool v);
+        void generateSortedStates(Graph g);
         
         //Public Variables
         map<int,Operation> operations;
         vector<vector<int>> states;   //keeps track of which operation ID pertains to which state
-                
+        vector<vector<int>> final_states;   //this is the states list following modification by the scheduling algorithm        
     private:
         //HelperFunctions
         int id_by_name(const string name);
