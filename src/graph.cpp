@@ -64,14 +64,12 @@ bool Graph::visit(std::shared_ptr<vertex> v){
 
 void Graph::deep_copy(const Graph& source){
     graph.clear();
-    int i = 0;
     //create copys of nodes
     for(auto v : source.graph){
         add_vertex(v.second->id, v.second->type);
-        graph[i]->color = v.second->color;
-        graph[i]->cycle = v.second->cycle;
-        graph[i]->time_frame = v.second->time_frame;
-        i++;
+        graph[v.second->id]->color = v.second->color;
+        graph[v.second->id]->cycle = v.second->cycle;
+        graph[v.second->id]->time_frame = v.second->time_frame;
     }
     
     //create copys of edges
