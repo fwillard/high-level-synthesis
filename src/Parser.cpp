@@ -488,7 +488,7 @@ Graph Parser::get_graph(){
             continue;
         for(int i : it->second.predisessors){
             //cout << "Add Edge: (" << it->second.id << " , " << i << ")\n";//for debugging
-            g.add_edge(it->second.id, i);
+            g.add_edge(i, it->second.id);
         }   
     }
 
