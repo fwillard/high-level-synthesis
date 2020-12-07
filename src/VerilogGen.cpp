@@ -101,7 +101,7 @@ void VerilogGen::generateIO(stringstream &ss){
     //add state register and done output
     ss << endl << "\tinput Start;" << endl;
     ss << "\toutput Done;" << endl;
-    this->state_size = (int)ceil(log2(this->parser->states.size()));
+    this->state_size = (int)ceil(log2(this->parser->final_states.size()));
     ss << "\treg [" << to_string(this->state_size-1) << ":0] state;" << endl; //state register based on the number of states
 }
 
@@ -116,8 +116,8 @@ void VerilogGen::generateLogic(stringstream &ss){
     ss << "\t\tcase(state)" << endl;
     
     vector<int> state;
-    for(int i = 1; i< this->parser->states.size()-1; i++){ //skip first and last state which are static
-        state = this->parser->states.at(i);
+    for(int i = 1; i< this->parser->final_states.size()-1; i++){ //skip first and last state which are static
+        state = this->parser->final_states.at(i);
         if(this->parser->operations.at(state.at(0)).symbol == "if" || this->parser->operations.at(state.at(0)).symbol == "NOP") //skip ifs, they are handled in the state control
             continue;
 
@@ -129,8 +129,8 @@ void VerilogGen::generateLogic(stringstream &ss){
         }
     }
 
-    ss << "\t\t\t" << this->state_size << "'d" << this->parser->states.size()-1 << ":" << endl;
-    ss << "\t\t\t\tdone = 1;" << endl;
+    ss << "\t\t\t" << this->state_size << "'d" << this->parser->final_states.size()-1 << ":" << endl;
+    ss << "\t\t\t\tDone = 1;" << endl;
 
     ss << "\t\tendcase" << endl; //end case
     ss << "\tend" << endl;   //end always
@@ -149,8 +149,8 @@ void VerilogGen::generateControl(stringstream &ss){
     ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d1;" <<endl;
 
     vector<int> state;
-    for(int i = 1; i< this->parser->states.size()-1; i++){ //0 and end state are already taken care of
-        state = this->parser->states.at(i);
+    for(int i = 1; i< this->parser->final_states.size()-1; i++){ //0 and end state are already taken care of
+        state = this->parser->final_states.at(i);
         if(this->parser->operations.at(state.at(0)).symbol == "NOP") //safeguard
             continue;
         ss << "\t\t\t\t" << to_string(this->state_size) << "'d" << i << ":" << endl;//list case
@@ -165,7 +165,7 @@ void VerilogGen::generateControl(stringstream &ss){
         }
     }
 
-    ss << "\t\t\t\t" << this->state_size << "'d" << this->parser->states.size()-1 << ":" << endl;
+    ss << "\t\t\t\t" << this->state_size << "'d" << this->parser->final_states.size()-1 << ":" << endl;
     ss << "\t\t\t\t\t" << "state = " << this->state_size << "'d0;" <<endl;
 
     ss << "\t\t\tendcase" << endl; //end case

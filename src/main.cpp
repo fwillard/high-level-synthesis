@@ -38,6 +38,18 @@ int main(int argc, char** argv){
     p.setVerbosity(true);
     p.parse(c_file);
 
+    Graph g = p.get_graph();
+    
+    /*if(!Graph::is_acyclic(g)){
+        std::cerr << "Graph is not acyclic" << std::endl;
+        return 1;
+    }*/
+    
+    /*Scheduler s;
+    s.force_directed(g, latency);*/
+
+    p.generateSortedStates(g);
+
     VerilogGen v(&p);
     v.setVerbosity(true);
     v.generate(c_file,verilog_file);
