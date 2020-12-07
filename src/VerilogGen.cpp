@@ -13,7 +13,7 @@ void VerilogGen::setVerbosity(bool v){
     this->verbose = v;
 }
 
-void VerilogGen::generateHeader(string filename, stringstream &ss){
+void VerilogGen::generateHeader(std::string filename, std::stringstream &ss){
     // tokenize line
 	std::vector <std::string> tokens;
 	std::stringstream lineStream(filename);
@@ -46,15 +46,15 @@ void VerilogGen::generateHeader(string filename, stringstream &ss){
 	ss << "Done, Start, Clk, Rst);" << endl;
 }
 
-void VerilogGen::generateIO(stringstream &ss){
+void VerilogGen::generateIO(std::stringstream &ss){
     map<int, Operation>::iterator it;
 
-    string keywords[3] = {"input","output","reg"};
+    std::string keywords[3] = {"input","output","reg"};
 
     //inputs
-    map<int,string> signed_items;
-    map<int,string> items;
-    for(string keyword : keywords){
+    map<int,std::string> signed_items;
+    map<int,std::string> items;
+    for(std::string keyword : keywords){
         for(it = this->parser->operations.begin(); it != this->parser->operations.end(); it++){
             if(it->second.symbol == keyword){
                 if(it->second.sign){ //signed inputs
@@ -105,13 +105,13 @@ void VerilogGen::generateIO(stringstream &ss){
     ss << "\treg [" << to_string(this->state_size-1) << ":0] state;" << endl; //state register based on the number of states
 }
 
-void VerilogGen::generateInitial(stringstream &ss){
+void VerilogGen::generateInitial(std::stringstream &ss){
     ss << "\tinitial begin" << endl;
     ss << "\t\tstate = " << to_string(this->state_size) << "'d0;" << endl;
     ss << "\tend" << endl;
 }
 
-void VerilogGen::generateLogic(stringstream &ss){
+void VerilogGen::generateLogic(std::stringstream &ss){
     ss << "\talways @(state) begin" << endl;
     ss << "\t\tcase(state)" << endl;
     
@@ -172,7 +172,7 @@ void VerilogGen::generateControl(stringstream &ss){
     ss << "\tend" << endl;   //end always
 }
 
-void VerilogGen::printOperation(string indent, stringstream &ss, int op){
+void VerilogGen::printOperation(std::string indent, std::stringstream &ss, int op){
     if(this->parser->operations.at(op).symbol == "if"){// if this is an if, generate an if switchc
         return;
     } 
@@ -190,7 +190,7 @@ void VerilogGen::printOperation(string indent, stringstream &ss, int op){
     ss << ";" << endl;
 }
 
-void VerilogGen::writeFile(string filename, stringstream &ss){
+void VerilogGen::writeFile(std::string filename, std::stringstream &ss){
         std::ofstream outFile;
 		outFile.open(filename);
 
@@ -200,7 +200,7 @@ void VerilogGen::writeFile(string filename, stringstream &ss){
 			exit(1);
 		}
 
-        string outstr = ss.str();
+        std::string outstr = ss.str();
         if(this->verbose){
             cout << "\n\nVerilog File Contents\n===========================================================================\n\n";
             cout << outstr;
@@ -210,7 +210,7 @@ void VerilogGen::writeFile(string filename, stringstream &ss){
 		outFile.close();
 }
 
-void VerilogGen::generate(string infile, string outfile){
+void VerilogGen::generate(std::string infile, std::string outfile){
 
 	std::stringstream ss; //stream used for writing
     generateHeader(infile, ss); //module header

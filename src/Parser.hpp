@@ -16,14 +16,12 @@
 #include "IfOperation.hpp"
 #include "graph.hpp"
 
-using namespace std;
-
 class Parser{
     public:
         //Public functions
         Parser();
         ~Parser();
-        void parse(const string filename);
+        void parse(const std::string filename);
         void print_operations();
         Graph get_graph();
         void setVerbosity(bool v);
@@ -35,21 +33,21 @@ class Parser{
         vector<vector<int>> final_states;   //this is the states list following modification by the scheduling algorithm        
     private:
         //HelperFunctions
-        int id_by_name(const string name);
-        bool tokenize(const string filename);
-        Resource_Type generate_type(string sym);
-        int extract_int(const string str);
-        bool is_number(string str);
+        int id_by_name(const std::string name);
+        bool tokenize(const std::string filename);
+        Resource_Type generate_type(std::string sym);
+        int extract_int(const std::string str);
+        bool is_number(std::string str);
         vector<int> getPreds(int target, vector<int> cstate);
         
         //new functions
         tuple<Operation,Operation> generateIO();
-        void generateOperations(vector<vector<string>> tokens);
-        tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> getBrackets(vector<vector<string>> vector);
+        void generateOperations(vector<vector<std::string>> tokens);
+        tuple<vector<vector<std::string>>,vector<vector<std::string>>,vector<vector<std::string>>> getBrackets(vector<vector<std::string>> vector);
         bool verbose;
         
         //Private Variables
-        vector<vector<string>> tokens;
+        vector<vector<std::string>> tokens;
         Operation INOP;
         Operation OUOP;
 };

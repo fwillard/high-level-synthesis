@@ -21,14 +21,14 @@ vector<int> mergeVectors(vector<int> a,vector<int> b){
     return ret;
 }
 
-void Parser::parse(const string filename){    
+void Parser::parse(const std::string filename){    
     
     tokenize(filename);
 
     if(this->verbose){
         cout << "\n\nTokens\n===========================================================================\n\n";
-        for(vector<string> line : this->tokens){
-            for(string token: line){
+        for(vector<std::string> line : this->tokens){
+            for(std::string token: line){
                 cout << token << " ";
             }
             cout << "\n";
@@ -86,9 +86,9 @@ void Parser::parse(const string filename){
     }    
 }
 
-bool Parser::tokenize(const string filename){
+bool Parser::tokenize(const std::string filename){
     
-    vector<vector<string> > current_lines = vector<vector<string> >();
+    vector<vector<std::string> > current_lines = vector<vector<std::string> >();
     
     ifstream infile(filename);
 
@@ -96,14 +96,14 @@ bool Parser::tokenize(const string filename){
         throw ParserException("ERROR: Input file \"" + filename +"\" could not be found");
     }
 
-    string token_string; 
+    std::string token_string; 
     while (getline(infile, token_string))
     {
-        vector<string> current_tokens = vector<string>();
-        istringstream iss(token_string); 
+        vector<std::string> current_tokens = vector<std::string>();
+        std::istringstream iss(token_string); 
 
-        for(string s; iss >> s; ){ 
-            if(s.find("//") != string::npos){
+        for(std::string s; iss >> s; ){ 
+            if(s.find("//") != std::string::npos){
                 break;
             }
             current_tokens.push_back(s); 
@@ -128,11 +128,11 @@ tuple<Operation,Operation> Parser::generateIO(){
     INOP.true_state = 1;//proceed to first actual state
     Operation OUOP = Operation("OUOP", Resource_Type::NOP, false, 1, operations.size());
     OUOP.true_state = 0;//loop to beginning
-    string symbols[3] = {"input", "output", "variable"};
+    std::string symbols[3] = {"input", "output", "variable"};
 
     //Continually read the first line of the tokens, removing it after parsing, break if not reading input output or variable 
     while(true){  
-        vector<string> line = this->tokens.at(0);
+        vector<std::string> line = this->tokens.at(0);
 
         if(line.size() < 3){ //make sure we dont run into an indexing error
             throw ParserException("ERROR: Inputs, Outputs, and Variables must be delcared with datawidth");
@@ -141,7 +141,7 @@ tuple<Operation,Operation> Parser::generateIO(){
         //NOTE: Configure INOP and OUOP here if needed
 
         if(find(begin(symbols), end(symbols), line.at(0)) != end(symbols)){
-            string width_str = line.at(1);
+            std::string width_str = line.at(1);
 
             Operation new_op("default", Resource_Type::NOP, false, 1, 0);
             new_op.datawidth = extract_int(width_str);
@@ -149,10 +149,10 @@ tuple<Operation,Operation> Parser::generateIO(){
             new_op.symbol = line.at(0);
             if(line.at(0) == "variable")
                 new_op.symbol = "reg";
-            for(string name : vector<string>(line.begin()+2,line.end())){ //Loop though new vector of names
-                string namestr = name;
+            for(std::string name : vector<std::string>(line.begin()+2,line.end())){ //Loop though new vector of names
+                std::string namestr = name;
                 int pos = namestr.find(",");
-                if (pos != string::npos)
+                if (pos != std::string::npos)
                     namestr.erase(pos, 1);
 
                 new_op.name = namestr;
@@ -170,14 +170,14 @@ tuple<Operation,Operation> Parser::generateIO(){
     return make_tuple(INOP, OUOP);
 }
 
-tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> Parser::getBrackets(vector<vector<string>> vec){
+tuple<vector<vector<std::string>>,vector<vector<std::string>>,vector<vector<std::string>>> Parser::getBrackets(vector<vector<std::string>> vec){
     //This function takes in a vector of parsed lines, starting with an if statement, and then returns
     //the "cut out" if/else bloock and the remaining lines from the original vector
-    vector<vector<string>> remainder_vector = vec; //copy of input vector to cut
-    vector<vector<string>> if_vector;
-    vector<vector<string>> else_vector;
+    vector<vector<std::string>> remainder_vector = vec; //copy of input vector to cut
+    vector<vector<std::string>> if_vector;
+    vector<vector<std::string>> else_vector;
     
-    vector<string> line = remainder_vector.at(0);
+    vector<std::string> line = remainder_vector.at(0);
     if (line.at(0) != "if"){
         throw ParserException("DEV ERROR: only tokens starting with an 'if' line can be passed to getBrackets");
     }
@@ -192,7 +192,7 @@ tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> Pars
     bool record = false;
     
     do{ //generate if block
-        vector<string> line = remainder_vector.at(0);
+        vector<std::string> line = remainder_vector.at(0);
         if(find(begin(line),end(line),"{") != end(line)){
             open_count++;
         }
@@ -216,7 +216,7 @@ tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> Pars
     if (remainder_vector.size() > 0 && remainder_vector.at(0).at(0) == "else"){  //generate else block if present
         line = remainder_vector.at(0);
         do{
-            vector<string> line = remainder_vector.at(0);
+            vector<std::string> line = remainder_vector.at(0);
             if(find(begin(line),end(line),"{") != end(line)){
                 open_count++;
             }
@@ -264,14 +264,14 @@ vector<int> Parser::getPreds(int target, vector<int> cstate){
     return preds;
 }
 
-void Parser::generateOperations(vector<vector<string>> tokens){
+void Parser::generateOperations(vector<vector<std::string>> tokens){
     //this recursive function generates a map of operations that later need to be parsed for states
-    vector<vector<string>> if_tokens;
-    vector<vector<string>> else_tokens;
+    vector<vector<std::string>> if_tokens;
+    vector<vector<std::string>> else_tokens;
     vector<int> current_state; //this creastes a new state on each call of generateOperations
 
     while(tokens.size()>0){ //loop until tokens are exhausted
-        vector<string> line = tokens.at(0);
+        vector<std::string> line = tokens.at(0);
         Operation current_op; 
 
         if(line.at(0) == "if"){ //when an if is encountered, create a new state and set the current operation to that new if operation. 
@@ -300,7 +300,7 @@ void Parser::generateOperations(vector<vector<string>> tokens){
             this->states.push_back(current_state);
             current_state.clear();
 
-            tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> split_tokens;
+            tuple<vector<vector<std::string>>,vector<vector<std::string>>,vector<vector<std::string>>> split_tokens;
             split_tokens = getBrackets(tokens);
 
             if_tokens = get<0>(split_tokens);
@@ -351,7 +351,7 @@ void Parser::generateOperations(vector<vector<string>> tokens){
         this->states.push_back(current_state);
 }
 
-int Parser::id_by_name(const string name){
+int Parser::id_by_name(const std::string name){
     for(int i = 0; i<this->operations.size(); i++){
         if(this->operations.at(i).name == name){
             return this->operations.at(i).id;
@@ -361,10 +361,10 @@ int Parser::id_by_name(const string name){
     throw ParserException("ERROR: Undeclared variable: " + name);
 }
 
-Resource_Type Parser::generate_type(string sym){
-    string adder_args[2] = {"+","-"};
-    string logic_args[9] = {">>","<<","%","++","--","?","<",">","=="};
-    string nop_args[5]    = {"const","input","output","wire","register"};
+Resource_Type Parser::generate_type(std::string sym){
+    std::string adder_args[2] = {"+","-"};
+    std::string logic_args[9] = {">>","<<","%","++","--","?","<",">","=="};
+    std::string nop_args[5]    = {"const","input","output","wire","register"};
 
     if(sym == "*")
         return Resource_Type::MULTIPLIER;
@@ -378,7 +378,7 @@ Resource_Type Parser::generate_type(string sym){
 }
 
 void Parser::print_operations(){
-    string types[] = {"ADDER", "MULTIPLIER", "LOGICAL", "DIVIDER", "NOP"};
+    std::string types[] = {"ADDER", "MULTIPLIER", "LOGICAL", "DIVIDER", "NOP"};
 
     map<int, Operation>::iterator it;
 
@@ -452,8 +452,8 @@ void Parser::print_operations(){
     cout << "\n\n";
 }
 
-int Parser::extract_int(const string str){
-    string result = "";
+int Parser::extract_int(const std::string str){
+    std::string result = "";
     for (char c : str) {
         if (isdigit(c)) result += c;
     }
@@ -461,7 +461,7 @@ int Parser::extract_int(const string str){
     return stoi(result); 
 }
 
-bool Parser::is_number(string str){
+bool Parser::is_number(std::string str){
     for (char c : str) {
         if (!isdigit(c)) return false;
     }
@@ -470,7 +470,7 @@ bool Parser::is_number(string str){
 }
 
 Graph Parser::get_graph(){
-    string types[] = {"ADDER", "MULTIPLIER", "LOGICAL", "DIVIDER", "NOP"};//for debugging
+    std::string types[] = {"ADDER", "MULTIPLIER", "LOGICAL", "DIVIDER", "NOP"};//for debugging
     Graph g;
 
     map<int, Operation>::iterator it; //iterator to parse through map
