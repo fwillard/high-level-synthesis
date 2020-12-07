@@ -127,10 +127,10 @@ double Graph::calc_self_force(int j, std::shared_ptr<vertex> v){
 double Graph::calc_predecessor_force(int j, std::shared_ptr<vertex> v){
     double sum = 0.0;
     for(auto u : v->inputs){
-        //ignore NOPs
-        if(u->type == Resource_Type::NOP){
-            continue;
-        }
+//        //ignore NOPs
+//        if(u->type == Resource_Type::NOP){
+//            continue;
+//        }
         
         int new_second = (j - u->delay);
         int old_second = u->time_frame.second;
@@ -151,10 +151,10 @@ double Graph::calc_successor_force(int j, std::shared_ptr<vertex> v){
     double sum = 0.0;
     for(auto u : v->outputs){
         
-        if(u->type == Resource_Type::NOP){
-            continue;
-        }
-        
+//        if(u->type == Resource_Type::NOP){
+//            continue;
+//        }
+//        
         int new_first = (j + v->delay);
         int old_first = u->time_frame.first;
         

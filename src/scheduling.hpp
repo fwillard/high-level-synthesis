@@ -21,7 +21,7 @@ private:
     Graph asap(Graph);
     Graph alap(Graph, int);
 public:
-    void force_directed(Graph, int);
+    Graph force_directed(Graph, int);
     
     //util
     static void print_schedule(Graph);
