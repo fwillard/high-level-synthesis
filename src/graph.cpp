@@ -64,14 +64,12 @@ bool Graph::visit(std::shared_ptr<vertex> v){
 
 void Graph::deep_copy(const Graph& source){
     graph.clear();
-    int i = 0;
     //create copys of nodes
     for(auto v : source.graph){
         add_vertex(v.second->id, v.second->type);
-        graph[i]->color = v.second->color;
-        graph[i]->cycle = v.second->cycle;
-        graph[i]->time_frame = v.second->time_frame;
-        i++;
+        graph[v.second->id]->color = v.second->color;
+        graph[v.second->id]->cycle = v.second->cycle;
+        graph[v.second->id]->time_frame = v.second->time_frame;
     }
     
     //create copys of edges
@@ -134,10 +132,10 @@ double Graph::calc_predecessor_force(int j, std::shared_ptr<vertex> v){
             continue;
         }
         
-        int new_second = (j + v->delay);
+        int new_second = (j - u->delay);
         int old_second = u->time_frame.second;
         
-        int second = new_second > old_second ? new_second : old_second;
+        int second = new_second < old_second ? new_second : old_second;
         
         std::pair<int, int> new_time_frame = std::make_pair(u->time_frame.first, second);
         
