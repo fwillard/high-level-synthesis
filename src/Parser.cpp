@@ -147,6 +147,8 @@ tuple<Operation,Operation> Parser::generateIO(){
             new_op.datawidth = extract_int(width_str);
             new_op.sign = width_str.find("UInt");
             new_op.symbol = line.at(0);
+            if(line.at(0) == "variable")
+                new_op.symbol = "reg";
             for(string name : vector<string>(line.begin()+2,line.end())){ //Loop though new vector of names
                 string namestr = name;
                 int pos = namestr.find(",");
@@ -287,6 +289,7 @@ void Parser::generateOperations(vector<vector<string>> tokens){
             int id = this->operations.size(); //seperated out so this can be used after recursive call
             IfOperation if_op(id_by_name(line.at(2)), this->states.size(), -1);
             if_op.id = id;
+            if_op.arg0_id = id_by_name(line.at(2));
             if_op.name = "IF_" + line.at(2);
             if_op.true_state = this->states.size()+1;
             if_op.symbol = "if";
@@ -478,15 +481,15 @@ Graph Parser::get_graph(){
         if(it->second.type == Resource_Type::NOP && !(it->second.name == "INOP" || it->second.name == "OUOP"))
             continue;
         g.add_vertex(it->second.id, it->second.type);
-        cout << "Add Vertex: (" << it->second.id << " , " << types[(int)it->second.type] << ")\n";//for debugging
+        //cout << "Add Vertex: (" << it->second.id << " , " << types[(int)it->second.type] << ")\n";//for debugging
     }
 
     for(it = this->operations.begin(); it != this->operations.end(); it++){ //loop through all operators again, now connecting them using predicessors
         if(it->second.type == Resource_Type::NOP && !(it->second.name == "OUOP")) //INOP has no preds
             continue;
         for(int i : it->second.predisessors){
+            //cout << "Add Edge: (" << it->second.id << " , " << i << ")\n";//for debugging
             g.add_edge(it->second.id, i);
-            cout << "Add Edge: (" << it->second.id << " , " << i << ")\n";//for debugging
         }   
     }
 

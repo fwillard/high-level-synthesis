@@ -12,6 +12,7 @@
 #include "graph.hpp"
 #include "scheduling.hpp"
 #include "Parser.hpp"
+#include "VerilogGen.hpp"
 
 int main(int argc, char** argv){
     
@@ -36,6 +37,9 @@ int main(int argc, char** argv){
     Parser p;
     p.setVerbosity(true);
     p.parse(argv[1]);
+
+    VerilogGen v(&p);
+    v.generate(argv[1]);
 
     Graph g = p.get_graph();
 
@@ -77,7 +81,7 @@ int main(int argc, char** argv){
     
     g.add_edge(5, 12);
     g.add_edge(9, 12);
-    g.add_edge(11, 12);
+    g.add_edge(11, 12); */
     
 // graph of hls_test1.c
 //    g.add_vertex(0, Resource_Type::NOP);
@@ -103,13 +107,13 @@ int main(int argc, char** argv){
     
     
 //    g.add_edge(4, 1); //creates a cycle;
-    */
-    if(!Graph::is_acyclic(g)){
-        std::cerr << "Graph is not acyclic" << std::endl;
-        return 1;
-    }
     
-    Scheduler s;
-    s.force_directed(g, latency);
+    // if(!Graph::is_acyclic(g)){
+    //     std::cerr << "Graph is not acyclic" << std::endl;
+    //     return 1;
+    // }
+    
+    // Scheduler s;
+    // s.force_directed(g, latency);
     return 0;
 }

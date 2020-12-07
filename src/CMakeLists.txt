@@ -16,6 +16,8 @@ set ( HLSYN_SOURCES
     Operation.hpp
     IfOperation.cpp
     IfOperation.hpp   
+    VerilogGen.cpp
+    VerilogGen.hpp
     )
 
 add_executable(hlsyn ${HLSYN_SOURCES})
