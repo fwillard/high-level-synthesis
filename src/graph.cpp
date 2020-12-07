@@ -132,10 +132,10 @@ double Graph::calc_predecessor_force(int j, std::shared_ptr<vertex> v){
             continue;
         }
         
-        int new_second = (j + v->delay);
+        int new_second = (j - u->delay);
         int old_second = u->time_frame.second;
         
-        int second = new_second > old_second ? new_second : old_second;
+        int second = new_second < old_second ? new_second : old_second;
         
         std::pair<int, int> new_time_frame = std::make_pair(u->time_frame.first, second);
         
