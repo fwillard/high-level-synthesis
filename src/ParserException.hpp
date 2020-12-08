@@ -1,5 +1,5 @@
 #ifndef PARSEREXCEPTION
-#define PARSERECVEPTIOM
+#define PARSEREXCEPTION
 
 #include <string>
 #include <exception>
