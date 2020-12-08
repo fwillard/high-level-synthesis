@@ -25,7 +25,7 @@ class Parser{
         void print_operations();
         Graph get_graph();
         void setVerbosity(bool v);
-        void generateSortedStates(Graph g);
+        void generateSortedStates(Graph g, int lambda);
         
         //Public Variables
         std::map<int,Operation> operations;

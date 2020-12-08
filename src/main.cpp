@@ -61,7 +61,7 @@ int main(int argc, char** argv){
     std::cout << "\n\nFinal Schedule: " << std::endl;
     s.print_schedule(g2);
 
-    p.generateSortedStates(g2);
+    p.generateSortedStates(g2,latency);
 
     VerilogGen v(&p);
     v.setVerbosity(true);
