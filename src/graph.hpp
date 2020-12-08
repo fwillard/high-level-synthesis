@@ -87,5 +87,17 @@ public:
     
     // Assignment operator
     Graph& operator=(const Graph&);
+    
+    //util
+    void output_data(){
+        for(auto v : graph){
+            for(auto u : v.second->outputs){
+                std::cout << v.second->id << " ";
+                std::cout << u->id << " ";
+                std::cout << "\n";
+
+            }
+        }
+    }
 };
 #endif /* graph_hpp */
