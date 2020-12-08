@@ -502,12 +502,12 @@ void Parser::setVerbosity(bool v){
 void Parser::generateSortedStates(Graph g, int lambda){
     std::vector<std::vector<int>> new_states;
     
-    for(int i=0; i<lambda+1; i++){
+    for(int i=0; i<lambda+2; i++){
         new_states.push_back(std::vector<int>());
     }
 
     new_states.at(0) = this->states.at(0);
-    new_states.at(lambda+1)= this->states.at(this->states.size()-1);
+    new_states.at(lambda+1) = this->states.at(this->states.size()-1);
 
     for(auto v : g.graph){
         if(v.second->type == Resource_Type::NOP)
@@ -516,5 +516,5 @@ void Parser::generateSortedStates(Graph g, int lambda){
         new_states.at(v.second->cycle).push_back(v.second->id);
     }
 
-    this->final_states = this->new_states; //stub
+    this->final_states = new_states; //stub
 }

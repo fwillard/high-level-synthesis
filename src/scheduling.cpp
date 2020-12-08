@@ -20,16 +20,16 @@ Graph Scheduler::force_directed(Graph g, int lambda){
         Graph g_asap = asap(g);
         
 
-        std::cout << "ASAP schedule: " << std::endl;
-        print_schedule(g_asap);
-        std::cout << std::endl;
+//        std::cout << "ASAP schedule: " << std::endl;
+//        print_schedule(g_asap);
+//        std::cout << std::endl;
         
         //generate alap schedule
         Graph g_alap = alap(g, lambda);
         
-        std::cout << "ALAP schedule: " << std::endl;
-        print_schedule(g_alap);
-        std::cout << std::endl;
+//        std::cout << "ALAP schedule: " << std::endl;
+//        print_schedule(g_alap);
+//        std::cout << std::endl;
         
         for(auto v : g.graph){
             //calc time frames for each operation
@@ -66,9 +66,9 @@ Graph Scheduler::force_directed(Graph g, int lambda){
         unscheduled.erase(min_vertex->id);
         unscheduled_count--;
         
-        std::cout << "Force Directed schedule (iteration " << ++i << "): " << std::endl;
-        print_schedule(g);
-        std::cout << std::endl;
+//        std::cout << "Force Directed schedule (iteration " << ++i << "): " << std::endl;
+//        print_schedule(g);
+//        std::cout << std::endl;
     }
     return g;
 }
