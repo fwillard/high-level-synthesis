@@ -71,7 +71,6 @@ public:
     //set up functions
     void add_vertex(const int, Resource_Type);
     void add_edge(const int, const int);
-    void remove_vertex(const int);
     
     //algorithms
     static bool is_acyclic(Graph);
