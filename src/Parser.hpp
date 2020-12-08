@@ -16,40 +16,38 @@
 #include "IfOperation.hpp"
 #include "graph.hpp"
 
-using namespace std;
-
 class Parser{
     public:
         //Public functions
         Parser();
         ~Parser();
-        void parse(const string filename);
+        void parse(const std::string filename);
         void print_operations();
         Graph get_graph();
         void setVerbosity(bool v);
         void generateSortedStates(Graph g);
         
         //Public Variables
-        map<int,Operation> operations;
-        vector<vector<int>> states;   //keeps track of which operation ID pertains to which state
-        vector<vector<int>> final_states;   //this is the states list following modification by the scheduling algorithm        
+        std::map<int,Operation> operations;
+        std::vector<std::vector<int>> states;   //keeps track of which operation ID pertains to which state
+        std::vector<std::vector<int>> final_states;   //this is the states list following modification by the scheduling algorithm        
     private:
         //HelperFunctions
-        int id_by_name(const string name);
-        bool tokenize(const string filename);
-        Resource_Type generate_type(string sym);
-        int extract_int(const string str);
-        bool is_number(string str);
-        vector<int> getPreds(int target, vector<int> cstate);
+        int id_by_name(const std::string name);
+        bool tokenize(const std::string filename);
+        Resource_Type generate_type(std::string sym);
+        int extract_int(const std::string str);
+        bool is_number(std::string str);
+        std::vector<int> getPreds(int target, std::vector<int> cstate);
         
         //new functions
-        tuple<Operation,Operation> generateIO();
-        void generateOperations(vector<vector<string>> tokens);
-        tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> getBrackets(vector<vector<string>> vector);
+        std::tuple<Operation,Operation> generateIO();
+        void generateOperations(std::vector<std::vector<std::string>> tokens);
+        std::tuple<std::vector<std::vector<std::string>>,std::vector<std::vector<std::string>>,std::vector<std::vector<std::string>>> getBrackets(std::vector<std::vector<std::string>> vec);
         bool verbose;
         
         //Private Variables
-        vector<vector<string>> tokens;
+        std::vector<std::vector<std::string>> tokens;
         Operation INOP;
         Operation OUOP;
 };

@@ -8,14 +8,12 @@
 #include <tgmath.h>
 #include"Parser.hpp"
 
-using namespace std;
-
 class VerilogGen{
     public:
 
     VerilogGen(Parser *p);
     ~VerilogGen();
-    void generate(string infile, string outfile);
+    void generate(std::string infile, std::string outfile);
     void setVerbosity(bool v);
 
     private:
@@ -23,13 +21,13 @@ class VerilogGen{
     int state_size;
     bool verbose;
 
-    void generateHeader(string filename, stringstream &ss);
-    void generateIO(stringstream &ss);
-    void generateInitial(stringstream &ss);
-    void generateLogic(stringstream &ss);
-    void generateControl(stringstream &ss);
-    void writeFile(string filename, stringstream &ss);
-    void printOperation(string indent, stringstream &ss, int op);
+    void generateHeader(std::string filename, std::stringstream &ss);
+    void generateIO(std::stringstream &ss);
+    void generateInitial(std::stringstream &ss);
+    void generateLogic(std::stringstream &ss);
+    void generateControl(std::stringstream &ss);
+    void writeFile(std::string filename, std::stringstream &ss);
+    void printOperation(std::string indent, std::stringstream &ss, int op);
 };
 
 #endif

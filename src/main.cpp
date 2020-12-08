@@ -48,83 +48,23 @@ int main(int argc, char** argv){
     /*Scheduler s;
     s.force_directed(g, latency);*/
 
-    p.generateSortedStates(g);
-
-    VerilogGen v(&p);
-    v.setVerbosity(true);
-    v.generate(c_file,verilog_file);
-
-
     
-
-//    //graph from HLS scheduling slide, NOTE: this requires all delays to be 1 cycle
-//    g.add_vertex(0, Resource_Type::NOP);
-//    g.add_vertex(1, Resource_Type::MULTIPLIER);
-//    g.add_vertex(2, Resource_Type::MULTIPLIER);
-//    g.add_vertex(3, Resource_Type::MULTIPLIER);
-//    g.add_vertex(4, Resource_Type::ADDER);
-//    g.add_vertex(5, Resource_Type::ADDER);
-//    g.add_vertex(6, Resource_Type::MULTIPLIER);
-//    g.add_vertex(7, Resource_Type::MULTIPLIER);
-//    g.add_vertex(8, Resource_Type::MULTIPLIER);
-//    g.add_vertex(9, Resource_Type::ADDER);
-//    g.add_vertex(10, Resource_Type::ADDER);
-//    g.add_vertex(11, Resource_Type::ADDER);
-//    g.add_vertex(12, Resource_Type::NOP);
-//
-//    g.add_edge(0, 1);
-//    g.add_edge(0, 2);
-//    g.add_edge(0, 6);
-//    g.add_edge(0, 8);
-//    g.add_edge(0, 10);
-//
-//    g.add_edge(1, 3);
-//    g.add_edge(2, 3);
-//
-//    g.add_edge(6, 7);
-//    g.add_edge(8, 9);
-//    g.add_edge(10, 11);
-//
-//
-//    g.add_edge(3, 4);
-//    g.add_edge(4, 5);
-//    g.add_edge(7, 5);
-//
-//    g.add_edge(5, 12);
-//    g.add_edge(9, 12);
-//    g.add_edge(11, 12);
-    
-// graph of hls_test1.c
-//    g.add_vertex(0, Resource_Type::NOP);
-//    g.add_vertex(1, Resource_Type::ADDER);
-//    g.add_vertex(2, Resource_Type::ADDER);
-//    g.add_vertex(3, Resource_Type::LOGICAL);
-//    g.add_vertex(4, Resource_Type::LOGICAL);
-//    g.add_vertex(5, Resource_Type::MULTIPLIER);
-//    g.add_vertex(6, Resource_Type::ADDER);
-//    g.add_vertex(7, Resource_Type::NOP);
-//
-//    g.add_edge(0, 1);
-//    g.add_edge(0, 2);
-//    g.add_edge(0, 5);
-//    g.add_edge(1, 3);
-//    g.add_edge(2, 3);
-//    g.add_edge(1, 4);
-//    g.add_edge(2, 4);
-//    g.add_edge(3, 4);
-//    g.add_edge(5, 6);
-//    g.add_edge(4, 7);
-//    g.add_edge(6, 7);
-    
-    
-//    g.add_edge(4, 1); //creates a cycle;
     
      if(!Graph::is_acyclic(g)){
          std::cerr << "Graph is not acyclic" << std::endl;
          return 1;
      }
     
-     Scheduler s;
-     s.force_directed(g, latency);
+    Scheduler s;
+    Graph g2 = s.force_directed(g, latency);
+
+    std::cout << "\n\nFinal Schedule: " << std::endl;
+    s.print_schedule(g2);
+
+    p.generateSortedStates(g2);
+
+    VerilogGen v(&p);
+    v.setVerbosity(true);
+    v.generate(c_file,verilog_file);
     return 0;
 }

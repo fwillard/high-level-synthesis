@@ -9,11 +9,11 @@ Parser::~Parser(){
 }
 
 //helper function usede in predicessor calculations
-vector<int> mergeVectors(vector<int> a,vector<int> b){
-    vector<int> ret = a;
+std::vector<int> mergeVectors(std::vector<int> a,std::vector<int> b){
+    std::vector<int> ret = a;
     ret.insert( ret.end(), b.begin(), b.begin() + b.size() );
 
-    vector<int>::iterator ip;
+    std::vector<int>::iterator ip;
     sort(ret.begin(), ret.end());
     ip = std::unique(ret.begin(), ret.end()); 
     ret.resize(std::distance(ret.begin(), ip));
@@ -21,17 +21,17 @@ vector<int> mergeVectors(vector<int> a,vector<int> b){
     return ret;
 }
 
-void Parser::parse(const string filename){    
+void Parser::parse(const std::string filename){    
     
     tokenize(filename);
 
     if(this->verbose){
-        cout << "\n\nTokens\n===========================================================================\n\n";
-        for(vector<string> line : this->tokens){
-            for(string token: line){
-                cout << token << " ";
+        std::cout << "\n\nTokens\n===========================================================================\n\n";
+        for(std::vector<std::string> line : this->tokens){
+            for(std::string token: line){
+                std::cout << token << " ";
             }
-            cout << "\n";
+            std::cout << "\n";
         }
     }
 
@@ -39,12 +39,12 @@ void Parser::parse(const string filename){
     this->operations.clear(); 
     this->states.clear();
 
-    tuple<Operation, Operation> NOPs = generateIO(); //generare all IO operations, these dont impact the graph
+    std::tuple<Operation, Operation> NOPs = generateIO(); //generare all IO operations, these dont impact the graph
 
     //Add INOP first
-    vector<int> wait_state = {0};
+    std::vector<int> wait_state = {0};
     this->states.push_back(wait_state);
-    Operation INOP = get<0>(NOPs);
+    Operation INOP = std::get<0>(NOPs);
     this->operations.insert({0,INOP});
 
     generateOperations(this->tokens);
@@ -52,12 +52,12 @@ void Parser::parse(const string filename){
     
 
     //Add OUOP last
-    vector<int> end_state = {(int)operations.size()};
-    Operation OUOP = get<1>(NOPs);
+    std::vector<int> end_state = {(int)operations.size()};
+    Operation OUOP = std::get<1>(NOPs);
     OUOP.id = (int)operations.size();
     for(auto const& it : this->operations){//Add predecessors for OUOP
         if(it.second.symbol == "output"){
-            vector<int> tmp;
+            std::vector<int> tmp;
             OUOP.predisessors = mergeVectors(OUOP.predisessors,getPreds(it.second.id,tmp));
         }
     }
@@ -65,7 +65,7 @@ void Parser::parse(const string filename){
     this->operations.insert({(int)operations.size(),OUOP}); 
 
     //Add predecessors for all if blocks
-    for(vector<int> state : this->states){
+    for(std::vector<int> state : this->states){
         if(this->operations.at(state.at(0)).symbol == "if"){ //if this state has an if block, it will be alone
             for( int op : this->states.at(this->operations.at(state.at(0)).true_state) ){ //loop through true block
                 this->operations.at(op).predisessors.push_back(state.at(0)); //add id of if
@@ -81,29 +81,29 @@ void Parser::parse(const string filename){
 
     //Print everything to console (if set) for debugging and visibility 
     if(this->verbose){
-        cout << "\n\n States and Operations\n===========================================================================\n\n";
+        std::cout << "\n\n States and Operations\n===========================================================================\n\n";
         print_operations();
     }    
 }
 
-bool Parser::tokenize(const string filename){
+bool Parser::tokenize(const std::string filename){
     
-    vector<vector<string> > current_lines = vector<vector<string> >();
+    std::vector<std::vector<std::string> > current_lines = std::vector<std::vector<std::string> >();
     
-    ifstream infile(filename);
+    std::ifstream infile(filename);
 
     if(!infile){
         throw ParserException("ERROR: Input file \"" + filename +"\" could not be found");
     }
 
-    string token_string; 
-    while (getline(infile, token_string))
+    std::string token_string; 
+    while (std::getline(infile, token_string))
     {
-        vector<string> current_tokens = vector<string>();
-        istringstream iss(token_string); 
+        std::vector<std::string> current_tokens = std::vector<std::string>();
+        std::istringstream iss(token_string); 
 
-        for(string s; iss >> s; ){ 
-            if(s.find("//") != string::npos){
+        for(std::string s; iss >> s; ){ 
+            if(s.find("//") != std::string::npos){
                 break;
             }
             current_tokens.push_back(s); 
@@ -117,7 +117,7 @@ bool Parser::tokenize(const string filename){
     return true;
 }
 
-tuple<Operation,Operation> Parser::generateIO(){
+std::tuple<Operation,Operation> Parser::generateIO(){
     //This generates all of inputs outputs and variables(reges) for the sake of verilog
     //Each of these components will be left out of the graph for the purpose of scheduling. They are only useful for verilog
     //The inputs and outputs of each of these will not be populated, as they are just tracked as INOP and OUOP
@@ -128,11 +128,11 @@ tuple<Operation,Operation> Parser::generateIO(){
     INOP.true_state = 1;//proceed to first actual state
     Operation OUOP = Operation("OUOP", Resource_Type::NOP, false, 1, operations.size());
     OUOP.true_state = 0;//loop to beginning
-    string symbols[3] = {"input", "output", "variable"};
+    std::string symbols[3] = {"input", "output", "variable"};
 
     //Continually read the first line of the tokens, removing it after parsing, break if not reading input output or variable 
     while(true){  
-        vector<string> line = this->tokens.at(0);
+        std::vector<std::string> line = this->tokens.at(0);
 
         if(line.size() < 3){ //make sure we dont run into an indexing error
             throw ParserException("ERROR: Inputs, Outputs, and Variables must be delcared with datawidth");
@@ -141,7 +141,7 @@ tuple<Operation,Operation> Parser::generateIO(){
         //NOTE: Configure INOP and OUOP here if needed
 
         if(find(begin(symbols), end(symbols), line.at(0)) != end(symbols)){
-            string width_str = line.at(1);
+            std::string width_str = line.at(1);
 
             Operation new_op("default", Resource_Type::NOP, false, 1, 0);
             new_op.datawidth = extract_int(width_str);
@@ -149,10 +149,10 @@ tuple<Operation,Operation> Parser::generateIO(){
             new_op.symbol = line.at(0);
             if(line.at(0) == "variable")
                 new_op.symbol = "reg";
-            for(string name : vector<string>(line.begin()+2,line.end())){ //Loop though new vector of names
-                string namestr = name;
+            for(std::string name : std::vector<std::string>(line.begin()+2,line.end())){ //Loop though new vector of names
+                std::string namestr = name;
                 int pos = namestr.find(",");
-                if (pos != string::npos)
+                if (pos != std::string::npos)
                     namestr.erase(pos, 1);
 
                 new_op.name = namestr;
@@ -167,17 +167,17 @@ tuple<Operation,Operation> Parser::generateIO(){
         this->tokens.erase(this->tokens.begin());
     }
 
-    return make_tuple(INOP, OUOP);
+    return std::make_tuple(INOP, OUOP);
 }
 
-tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> Parser::getBrackets(vector<vector<string>> vec){
+std::tuple<std::vector<std::vector<std::string>>,std::vector<std::vector<std::string>>,std::vector<std::vector<std::string>>> Parser::getBrackets(std::vector<std::vector<std::string>> vec){
     //This function takes in a vector of parsed lines, starting with an if statement, and then returns
     //the "cut out" if/else bloock and the remaining lines from the original vector
-    vector<vector<string>> remainder_vector = vec; //copy of input vector to cut
-    vector<vector<string>> if_vector;
-    vector<vector<string>> else_vector;
+    std::vector<std::vector<std::string>> remainder_vector = vec; //copy of input vector to cut
+    std::vector<std::vector<std::string>> if_vector;
+    std::vector<std::vector<std::string>> else_vector;
     
-    vector<string> line = remainder_vector.at(0);
+    std::vector<std::string> line = remainder_vector.at(0);
     if (line.at(0) != "if"){
         throw ParserException("DEV ERROR: only tokens starting with an 'if' line can be passed to getBrackets");
     }
@@ -192,7 +192,7 @@ tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> Pars
     bool record = false;
     
     do{ //generate if block
-        vector<string> line = remainder_vector.at(0);
+        std::vector<std::string> line = remainder_vector.at(0);
         if(find(begin(line),end(line),"{") != end(line)){
             open_count++;
         }
@@ -216,7 +216,7 @@ tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> Pars
     if (remainder_vector.size() > 0 && remainder_vector.at(0).at(0) == "else"){  //generate else block if present
         line = remainder_vector.at(0);
         do{
-            vector<string> line = remainder_vector.at(0);
+            std::vector<std::string> line = remainder_vector.at(0);
             if(find(begin(line),end(line),"{") != end(line)){
                 open_count++;
             }
@@ -239,11 +239,11 @@ tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> Pars
     return make_tuple(if_vector, else_vector, remainder_vector); 
 }
 
-vector<int> Parser::getPreds(int target, vector<int> cstate){ 
+std::vector<int> Parser::getPreds(int target, std::vector<int> cstate){ 
 //returns all operable nodes that output the target id, this is used during generateOperations only
 //this function does not add if statements as predicessors 
 
-    vector<int> preds;
+    std::vector<int> preds;
     if(this->operations.at(target).symbol == "input"){ //if target is an input, the pred is INOP
         preds.push_back(0); //point to INOP
     } 
@@ -253,7 +253,7 @@ vector<int> Parser::getPreds(int target, vector<int> cstate){
                 preds.push_back(cstate.at(op));
             }
         }
-        for(vector<int> state : this->states){ //loop through saved states forwards, shouldnt make a difference
+        for(std::vector<int> state : this->states){ //loop through saved states forwards, shouldnt make a difference
             for(int op = state.size()-1; op >=0; op--){ 
                 if(this->operations.at(state.at(op)).output_id == target){
                     preds.push_back(state.at(op));
@@ -264,14 +264,14 @@ vector<int> Parser::getPreds(int target, vector<int> cstate){
     return preds;
 }
 
-void Parser::generateOperations(vector<vector<string>> tokens){
+void Parser::generateOperations(std::vector<std::vector<std::string>> tokens){
     //this recursive function generates a map of operations that later need to be parsed for states
-    vector<vector<string>> if_tokens;
-    vector<vector<string>> else_tokens;
-    vector<int> current_state; //this creastes a new state on each call of generateOperations
+    std::vector<std::vector<std::string>> if_tokens;
+    std::vector<std::vector<std::string>> else_tokens;
+    std::vector<int> current_state; //this creastes a new state on each call of generateOperations
 
     while(tokens.size()>0){ //loop until tokens are exhausted
-        vector<string> line = tokens.at(0);
+        std::vector<std::string> line = tokens.at(0);
         Operation current_op; 
 
         if(line.at(0) == "if"){ //when an if is encountered, create a new state and set the current operation to that new if operation. 
@@ -300,12 +300,12 @@ void Parser::generateOperations(vector<vector<string>> tokens){
             this->states.push_back(current_state);
             current_state.clear();
 
-            tuple<vector<vector<string>>,vector<vector<string>>,vector<vector<string>>> split_tokens;
+            std::tuple<std::vector<std::vector<std::string>>,std::vector<std::vector<std::string>>,std::vector<std::vector<std::string>>> split_tokens;
             split_tokens = getBrackets(tokens);
 
-            if_tokens = get<0>(split_tokens);
-            else_tokens = get<1>(split_tokens);
-            tokens = get<2>(split_tokens);
+            if_tokens = std::get<0>(split_tokens);
+            else_tokens = std::get<1>(split_tokens);
+            tokens = std::get<2>(split_tokens);
 
             generateOperations(if_tokens);  
             current_state.clear();
@@ -320,9 +320,9 @@ void Parser::generateOperations(vector<vector<string>> tokens){
         }
         else{
             //set parsed members
-            vector<int> preds; //vector to keep track of preds
+            std::vector<int> preds; //vector to keep track of preds
             current_op.id = this->operations.size();
-            current_op.name = "OP_" + to_string(this->operations.size()); 
+            current_op.name = "OP_" + std::to_string(this->operations.size()); 
             current_op.output_id = id_by_name(line.at(0));
             current_op.arg0_id = id_by_name(line.at(2)); //Assignment only
             preds = getPreds(id_by_name(line.at(2)),current_state);
@@ -351,7 +351,7 @@ void Parser::generateOperations(vector<vector<string>> tokens){
         this->states.push_back(current_state);
 }
 
-int Parser::id_by_name(const string name){
+int Parser::id_by_name(const std::string name){
     for(int i = 0; i<this->operations.size(); i++){
         if(this->operations.at(i).name == name){
             return this->operations.at(i).id;
@@ -361,10 +361,10 @@ int Parser::id_by_name(const string name){
     throw ParserException("ERROR: Undeclared variable: " + name);
 }
 
-Resource_Type Parser::generate_type(string sym){
-    string adder_args[2] = {"+","-"};
-    string logic_args[9] = {">>","<<","%","++","--","?","<",">","=="};
-    string nop_args[5]    = {"const","input","output","wire","register"};
+Resource_Type Parser::generate_type(std::string sym){
+    std::string adder_args[2] = {"+","-"};
+    std::string logic_args[9] = {">>","<<","%","++","--","?","<",">","=="};
+    std::string nop_args[5]    = {"const","input","output","wire","register"};
 
     if(sym == "*")
         return Resource_Type::MULTIPLIER;
@@ -378,82 +378,82 @@ Resource_Type Parser::generate_type(string sym){
 }
 
 void Parser::print_operations(){
-    string types[] = {"ADDER", "MULTIPLIER", "LOGICAL", "DIVIDER", "NOP"};
+    std::string types[] = {"ADDER", "MULTIPLIER", "LOGICAL", "DIVIDER", "NOP"};
 
-    map<int, Operation>::iterator it;
+    std::map<int, Operation>::iterator it;
 
     //create title block
-    cout << left << setw(2) << "ID" << " | "; 
-    cout << left << setw(7) << "NAME" << " | ";
-    cout << left << setw(10) << "TYPE" << " | ";
-    cout << left << setw(8) << "SYM" << " | ";
-    cout << left << setw(2) << "TS" << " | ";
-    cout << left << setw(2) << "FS" << " | ";
-    cout << left << setw(6) << "OUTPUT" << " | ";
-    cout << left << setw(6) << "ARG 0" << " | ";
-    cout << left << setw(6) << "ARG 1" << " | ";
-    cout << left << setw(6) << "ARG 2" << " | ";
-    cout << left << "PREDS" << " | ";
-    //cout << "( Outputs | Inputs )\n";
-    cout << "\n";
-    cout << setfill('_') << setw(120) << "";
-    cout << setfill(' ');
-    cout << "\n";
+    std::cout << std::left << std::setw(2) << "ID" << " | "; 
+    std::cout << std::left << std::setw(7) << "NAME" << " | ";
+    std::cout << std::left << std::setw(10) << "TYPE" << " | ";
+    std::cout << std::left << std::setw(8) << "SYM" << " | ";
+    std::cout << std::left << std::setw(2) << "TS" << " | ";
+    std::cout << std::left << std::setw(2) << "FS" << " | ";
+    std::cout << std::left << std::setw(6) << "OUTPUT" << " | ";
+    std::cout << std::left << std::setw(6) << "ARG 0" << " | ";
+    std::cout << std::left << std::setw(6) << "ARG 1" << " | ";
+    std::cout << std::left << std::setw(6) << "ARG 2" << " | ";
+    std::cout << std::left << "PREDS" << " | ";
+    //std::cout << "( Outputs | Inputs )\n";
+    std::cout << "\n";
+    std::cout << std::setfill('_') << std::setw(120) << "";
+    std::cout << std::setfill(' ');
+    std::cout << "\n";
 
     //output all components
     int count = 0;
-    for( vector<int> state : this->states){
-        cout << right << setfill('-') << setw(120) << "STATE " + to_string(count); //output the current state number
+    for( std::vector<int> state : this->states){
+        std::cout << std::right << std::setfill('-') << std::setw(120) << "STATE " << std::to_string(count); //output the current state number
         count++;
-        cout << setfill(' ');
-        cout << "\n";
+        std::cout << std::setfill(' ');
+        std::cout << "\n";
         for( int i : state){
             Operation op = this->operations.at(i);
-            cout << left << setw(2) << op.id << " | "; 
-            cout << left << setw(7) << op.name << " | " ;
-            cout << left << setw(10) << types[(int)op.type] << " | ";
-            cout << left << setw(8) << op.symbol << " | ";
-            cout << left << setw(2) << op.true_state << " | ";
+            std::cout << std::left << std::setw(2) << op.id << " | "; 
+            std::cout << std::left << std::setw(7) << op.name << " | " ;
+            std::cout << std::left << std::setw(10) << types[(int)op.type] << " | ";
+            std::cout << std::left << std::setw(8) << op.symbol << " | ";
+            std::cout << std::left << std::setw(2) << op.true_state << " | ";
             if(!op.isif){    
-                cout << left << setw(2) << "" << " | ";
+                std::cout << std::left << std::setw(2) << "" << " | ";
             }
             else{
-                cout << left << setw(2) << op.false_state << " | ";
+                std::cout << std::left << std::setw(2) << op.false_state << " | ";
             }
 
             if(op.output_id >= 0 && !op.isif){
-                cout << left << setw(6) << this->operations.at(op.output_id).name << " | ";
+                std::cout << std::left << std::setw(6) << this->operations.at(op.output_id).name << " | ";
             }else{
-                cout << left << setw(6) << "" << " | ";
+                std::cout << std::left << std::setw(6) << "" << " | ";
             }
             if(op.arg0_id >= 0 && !op.isif){
-                cout << left << setw(6) << this->operations.at(op.arg0_id).name << " | ";
+                std::cout << std::left << std::setw(6) << this->operations.at(op.arg0_id).name << " | ";
             }else{
-                cout << left << setw(6) << "" << " | ";
+                std::cout << std::left << std::setw(6) << "" << " | ";
             }
             if(op.arg1_id >= 0 && !op.isif){
-                cout << left << setw(6) << this->operations.at(op.arg1_id).name << " | ";
+                std::cout << std::left << std::setw(6) << this->operations.at(op.arg1_id).name << " | ";
             }else{
-                cout << left << setw(6) << "" << " | ";
+                std::cout << std::left << std::setw(6) << "" << " | ";
             }
             if(op.arg2_id >= 0 && !op.isif){
-                cout << left << setw(6) << this->operations.at(op.arg2_id).name << " | ";
+                std::cout << std::left << std::setw(6) << this->operations.at(op.arg2_id).name << " | ";
             }else{
-                cout << left << setw(6) << "" << " | ";
+                std::cout << std::left << std::setw(6) << "" << " | ";
             }
             
             for(int p : op.predisessors){
-                cout << p << ", ";
+                std::cout << p << ", ";
             }
-            cout << "\n";
+            std::cout << "\n";
         }
         
     }
-    cout << "\n\n";
+    std::cout << "\n\n";
 }
 
-int Parser::extract_int(const string str){
-    string result = "";
+int Parser::extract_int(const std::string str){
+    std::string result = "";
     for (char c : str) {
         if (isdigit(c)) result += c;
     }
@@ -461,7 +461,7 @@ int Parser::extract_int(const string str){
     return stoi(result); 
 }
 
-bool Parser::is_number(string str){
+bool Parser::is_number(std::string str){
     for (char c : str) {
         if (!isdigit(c)) return false;
     }
@@ -470,24 +470,24 @@ bool Parser::is_number(string str){
 }
 
 Graph Parser::get_graph(){
-    string types[] = {"ADDER", "MULTIPLIER", "LOGICAL", "DIVIDER", "NOP"};//for debugging
+    std::string types[] = {"ADDER", "MULTIPLIER", "LOGICAL", "DIVIDER", "NOP"};//for debugging
     Graph g;
 
-    map<int, Operation>::iterator it; //iterator to parse through map
+    std::map<int, Operation>::iterator it; //iterator to parse through map
 
     //add all operators to the graph (this excludes inputs, outputs, and variables)
     for(it = this->operations.begin(); it != this->operations.end(); it++){ //ignore empty
         if(it->second.type == Resource_Type::NOP && !(it->second.name == "INOP" || it->second.name == "OUOP"))
             continue;
         g.add_vertex(it->second.id, it->second.type);
-        //cout << "Add Vertex: (" << it->second.id << " , " << types[(int)it->second.type] << ")\n";//for debugging
+        //std::cout << "Add Vertex: (" << it->second.id << " , " << types[(int)it->second.type] << ")\n";//for debugging
     }
 
     for(it = this->operations.begin(); it != this->operations.end(); it++){ //loop through all operators again, now connecting them using predicessors
         if(it->second.type == Resource_Type::NOP && !(it->second.name == "OUOP")) //INOP has no preds
             continue;
         for(int i : it->second.predisessors){
-            //cout << "Add Edge: (" << it->second.id << " , " << i << ")\n";//for debugging
+            //std::cout << "Add Edge: (" << it->second.id << " , " << i << ")\n";//for debugging
             g.add_edge(i, it->second.id);
         }   
     }

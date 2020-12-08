@@ -2,8 +2,6 @@
 #define IFOPERATION
 
 #include "Operation.hpp"
-
-using namespace std;
  
 //Struct containing information for each component in the circuit including inputs and outputs
 class IfOperation : public Operation{
