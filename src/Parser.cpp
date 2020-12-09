@@ -21,6 +21,32 @@ std::vector<int> mergeVectors(std::vector<int> a,std::vector<int> b){
     return ret;
 }
 
+void Parser::setIfPreds(int if_id){
+    //handle if true
+    for( int op : this->states.at(this->operations.at(if_id).true_state)){ //loop through true block
+        this->operations.at(op).predisessors.push_back(if_id); //add id of if to op
+        this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors); //clean up
+
+        if(this->operations.at(op).symbol == "if"){
+            setIfPreds(op);
+
+        }
+    } 
+            
+    //handle else (if there is an else)
+    for(int op : this->states.at(this->operations.at(if_id).false_state)){ //loop through false block, even if it is OUOP
+        if(this->operations.at(if_id).has_else){//if there is actually an else block
+            this->operations.at(op).predisessors.push_back(if_id); //add id of if
+            this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
+
+            if(this->operations.at(op).symbol == "if"){
+                setIfPreds(op);
+            }
+        }
+        
+    }
+}
+
 void Parser::parse(const std::string filename){    
     
     tokenize(filename);
@@ -64,9 +90,10 @@ void Parser::parse(const std::string filename){
     this->states.push_back(end_state);
     this->operations.insert({(int)operations.size(),OUOP}); 
 
-    //Add predecessors for all if and else blocks
+   /* //Add predecessors for all if and else blocks
     for(std::vector<int> state : this->states){
         if(this->operations.at(state.at(0)).symbol == "if"){ //if this state has an if block, it will be alone
+        //for(int pred : this->operations.at(state.at(0)).predisessors)
             for( int op : this->states.at(this->operations.at(state.at(0)).true_state) ){ //loop through true block
                 this->operations.at(op).predisessors.push_back(state.at(0)); //add id of if
                 this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
@@ -77,6 +104,22 @@ void Parser::parse(const std::string filename){
                     this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
                 }
             }
+        }
+    }*/
+
+    bool doAdd = true;
+    //Add predecessors for all if and else blocks
+    for(std::vector<int> state : this->states){
+        if(this->operations.at(state.at(0)).symbol == "if"){ //if this state has an if block, it will be alone
+            for(int pred : this->operations.at(state.at(0)).predisessors){
+                if(this->operations.at(pred).symbol == "if"){ //detect nested if
+                    doAdd = false;
+                } 
+            }
+            if(doAdd){
+                setIfPreds(state.at(0)); //add predicessors for the state that was found
+            }
+            doAdd = true;
         }
     }
 

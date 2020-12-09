@@ -39,6 +39,7 @@ class Parser{
         int extract_int(const std::string str);
         bool is_number(std::string str);
         std::vector<int> getPreds(int target, std::vector<int> cstate);
+        void setIfPreds(int if_id);
         
         //new functions
         std::tuple<Operation,Operation> generateIO();
