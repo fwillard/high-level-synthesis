@@ -64,14 +64,14 @@ void Parser::parse(const std::string filename){
     this->states.push_back(end_state);
     this->operations.insert({(int)operations.size(),OUOP}); 
 
-    //Add predecessors for all if blocks
+    //Add predecessors for all if and else blocks
     for(std::vector<int> state : this->states){
         if(this->operations.at(state.at(0)).symbol == "if"){ //if this state has an if block, it will be alone
             for( int op : this->states.at(this->operations.at(state.at(0)).true_state) ){ //loop through true block
                 this->operations.at(op).predisessors.push_back(state.at(0)); //add id of if
                 this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
             } 
-            for(int op : this->states.at(this->operations.at(state.at(0)).true_state)){ //loop through false block, even if it is OUOP
+            for(int op : this->states.at(this->operations.at(state.at(0)).false_state)){ //loop through false block, even if it is OUOP
                 this->operations.at(op).predisessors.push_back(state.at(0)); //add id of if
                 this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
             }
@@ -500,7 +500,7 @@ void Parser::setVerbosity(bool v){
 }
 
 void Parser::generateSortedStates(Graph g, int lambda){
-    std::vector<std::vector<int>> new_states;
+   std::vector<std::vector<int>> new_states;
     
     for(int i=0; i<lambda+2; i++){
         new_states.push_back(std::vector<int>());
@@ -516,5 +516,5 @@ void Parser::generateSortedStates(Graph g, int lambda){
         new_states.at(v.second->cycle).push_back(v.second->id);
     }
 
-    this->final_states = new_states; //stub
+    this->final_states = this->states; //new_states; //stub
 }

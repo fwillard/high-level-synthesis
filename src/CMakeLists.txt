@@ -22,4 +22,3 @@ set ( HLSYN_SOURCES
 
 add_executable(hlsyn ${HLSYN_SOURCES})
 set_property(TARGET hlsyn PROPERTY CXX_STANDARD 11)
-
