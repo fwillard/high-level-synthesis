@@ -14,4 +14,6 @@ IfOperation::IfOperation(int condition, int t_state, int f_state){
     this->type = Resource_Type::LOGICAL;
     this->sign = false;
     this->datawidth = 1;
+
+    this->has_else = false;
 }

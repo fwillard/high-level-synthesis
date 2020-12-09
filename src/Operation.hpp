@@ -25,6 +25,8 @@ class Operation{
         int condition_id;
         int true_state;
         int false_state;
+
+        bool has_else;
 }; 
 
 

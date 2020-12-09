@@ -72,10 +72,11 @@ void Parser::parse(const std::string filename){
                 this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
             } 
             for(int op : this->states.at(this->operations.at(state.at(0)).false_state)){ //loop through false block, even if it is OUOP
-                this->operations.at(op).predisessors.push_back(state.at(0)); //add id of if
-                this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
+                if(this->operations.at(state.at(0)).has_else){//if there is actually an else block
+                    this->operations.at(op).predisessors.push_back(state.at(0)); //add id of if
+                    this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
+                }
             }
-            
         }
     }
 
@@ -294,11 +295,6 @@ void Parser::generateOperations(std::vector<std::vector<std::string>> tokens){
             if_op.true_state = this->states.size()+1;
             if_op.symbol = "if";
             if_op.predisessors = getPreds(id_by_name(line.at(2)),current_state); //only one argument to check
-            this->operations.insert({id,if_op});
-
-            current_state.push_back(if_op.id);
-            this->states.push_back(current_state);
-            current_state.clear();
 
             std::tuple<std::vector<std::vector<std::string>>,std::vector<std::vector<std::string>>,std::vector<std::vector<std::string>>> split_tokens;
             split_tokens = getBrackets(tokens);
@@ -306,6 +302,15 @@ void Parser::generateOperations(std::vector<std::vector<std::string>> tokens){
             if_tokens = std::get<0>(split_tokens);
             else_tokens = std::get<1>(split_tokens);
             tokens = std::get<2>(split_tokens);
+
+            //add the if block to the map and states vector
+            if(else_tokens.size()>0){
+                if_op.has_else = true;
+            }
+            this->operations.insert({id,if_op});
+            current_state.push_back(if_op.id);
+            this->states.push_back(current_state);
+            current_state.clear();
 
             generateOperations(if_tokens);  
             current_state.clear();
