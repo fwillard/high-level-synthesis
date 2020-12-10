@@ -571,5 +571,5 @@ void Parser::generateSortedStates(Graph g, int lambda){
         new_states.at(v.second->cycle).push_back(v.second->id);
     }
 
-    this->final_states = this->states; //new_states; //stub
+    this->final_states = new_states; //stub
 }
