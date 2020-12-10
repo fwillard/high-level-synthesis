@@ -21,21 +21,27 @@ std::vector<int> mergeVectors(std::vector<int> a,std::vector<int> b){
     return ret;
 }
 
-void Parser::setIfPreds(int if_id){
+int Parser::setIfPreds(int if_id){
+    int state = this->operations.at(if_id).true_state;
+    int r_val = 2;
+    int vect_size = this->states.at(state).size();
     //handle if true
-    for( int op : this->states.at(this->operations.at(if_id).true_state)){ //loop through true block
+    for(int i = 0; i < vect_size; i++ ){ //loop through true block
+        int op = this->states.at(state).at(i);
         this->operations.at(op).predisessors.push_back(if_id); //add id of if to op
         this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors); //clean up
 
         if(this->operations.at(op).symbol == "if"){
-            setIfPreds(op);
-
+            state += setIfPreds(op);
+            i = -1;
+            vect_size = this->states.at(state).size();
         }
     } 
             
     //handle else (if there is an else)
     for(int op : this->states.at(this->operations.at(if_id).false_state)){ //loop through false block, even if it is OUOP
         if(this->operations.at(if_id).has_else){//if there is actually an else block
+            r_val = 3;
             this->operations.at(op).predisessors.push_back(if_id); //add id of if
             this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
 
@@ -45,6 +51,7 @@ void Parser::setIfPreds(int if_id){
         }
         
     }
+    return r_val;
 }
 
 void Parser::parse(const std::string filename){    
