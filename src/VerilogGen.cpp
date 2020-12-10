@@ -60,11 +60,20 @@ void VerilogGen::generateIO(std::stringstream &ss){
                 if(it->second.sign){ //signed inputs
                     if(signed_items.find(it->second.datawidth) == signed_items.end()){ //new datawidth
                         if(it->second.datawidth > 1){
-                            signed_items.insert({it->second.datawidth,"\t" + keyword + " signed [" + std::to_string(it->second.datawidth -1) + ":0] " + it->second.name});
+                            if(keyword == "output") {
+                                signed_items.insert({it->second.datawidth,"\t" + keyword + " reg signed [" + std::to_string(it->second.datawidth -1) + ":0] " + it->second.name});
+                            }
+                            else{
+                                signed_items.insert({it->second.datawidth,"\t" + keyword + " signed [" + std::to_string(it->second.datawidth -1) + ":0] " + it->second.name});
+                            }
+                            
                         }
+                        else if(keyword == "output") {
+                            signed_items.insert({it->second.datawidth,"\t" + keyword + " reg signed" + it->second.name});
+                        }   
                         else{
                             signed_items.insert({it->second.datawidth,"\t" + keyword + " signed " + it->second.name});
-                        }   
+                        }
                     }
                     else{ //existting datawidth
                         signed_items.at(it->second.datawidth) = signed_items.at(it->second.datawidth) + ", " + it->second.name;
@@ -73,11 +82,20 @@ void VerilogGen::generateIO(std::stringstream &ss){
                 else{ //unsigned inputs
                     if(items.find(it->second.datawidth) == items.end()){ //new datawidth
                         if(it->second.datawidth > 1){
-                            items.insert({it->second.datawidth,"\t" + keyword + " [" + std::to_string(it->second.datawidth -1) + ":0] " + it->second.name});
+                            
+                            if(keyword == "output") {
+                                items.insert({it->second.datawidth,"\t" + keyword + " reg [" + std::to_string(it->second.datawidth -1) + ":0] " + it->second.name});
+                            }
+                            else {
+                                items.insert({it->second.datawidth,"\t" + keyword + " [" + std::to_string(it->second.datawidth -1) + ":0] " + it->second.name});
+                            }
                         }
+                        else if(keyword == "output") {
+                            items.insert({it->second.datawidth,"\t" + keyword + " reg " + it->second.name});
+                        }  
                         else{
                             items.insert({it->second.datawidth,"\t" + keyword + " " + it->second.name});
-                        }   
+                        } 
                     }
                     else{ //existting datawidth
                         items.at(it->second.datawidth) = items.at(it->second.datawidth) + ", " + it->second.name;
@@ -100,9 +118,9 @@ void VerilogGen::generateIO(std::stringstream &ss){
 
     //add state register and done output and clk/rst
     ss <<std::endl << "\tinput Start;" <<std::endl;
-    ss << "\toutput Done;" <<std::endl;
+    ss << "\toutput reg Done;" <<std::endl;
     ss <<std::endl << "\tinput Clk;" <<std::endl;
-    ss << "\toutput Rst;" <<std::endl;
+    ss << "\toutput reg Rst;" <<std::endl;
     
     this->state_size = (int)ceil(log2(this->parser->final_states.size()));
     ss << "\treg [" << std::to_string(this->state_size-1) << ":0] state;" <<std::endl; //state register based on the number of states
@@ -126,13 +144,13 @@ void VerilogGen::generateLogic(std::stringstream &ss){
         
         ss << "\t\t\t" << std::to_string(this->state_size) << "'d" << i << ":" <<std::endl;//list case
         
-        ss << "\t\t\tbegin" <<std::endl;//begin
+        ss << "\t\t\t\tbegin" <<std::endl;//begin
 
         for(int op : state){
             if(this->parser->operations.at(op).symbol != "if" && this->parser->operations.at(op).symbol != "NOP") //skip over if states, they are isued in the state control
                 printOperation("\t\t\t\t", ss, op);
         }
-        ss << "\t\t\tend" <<std::endl;//end
+        ss << "\t\t\t\tend" <<std::endl;//end
     }
 
     ss << "\t\t\t" << this->state_size << "'d" << this->parser->final_states.size()-1 << ":" <<std::endl;
@@ -164,7 +182,7 @@ void VerilogGen::generateControl(std::stringstream &ss){
         if(this->parser->operations.at(state.at(0)).symbol == "NOP") //safeguard
             continue;
         ss << "\t\t\t\t" << std::to_string(this->state_size) << "'d" << i << ":" <<std::endl;//list case
-        ss << "\t\t\t\tbegin" <<std::endl;//begin
+        ss << "\t\t\t\t\tbegin" <<std::endl;//begin
         
         if(this->parser->operations.at(state.at(0)).symbol == "if"){ //generate if
             ss << "\t\t\t\t\t" << "if (" << this->parser->operations.at(this->parser->operations.at(state.at(0)).arg0_id).name << ")" <<std::endl;
@@ -175,7 +193,7 @@ void VerilogGen::generateControl(std::stringstream &ss){
         else{
             ss << "\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(state.at(0)).true_state << ";" <<std::endl;
         }
-        ss << "\t\t\t\tend" <<std::endl;//end
+        ss << "\t\t\t\t\tend" <<std::endl;//end
     }
 
     ss << "\t\t\t\t" << this->state_size << "'d" << this->parser->final_states.size()-1 << ":" <<std::endl;
