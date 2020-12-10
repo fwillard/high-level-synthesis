@@ -94,17 +94,22 @@ Graph Scheduler::alap(Graph g, int lambda){
     g.graph.rbegin()->second->cycle = lambda + 1;
     while(g.graph.begin()->second->cycle == -1){
         std::shared_ptr<vertex> v = find_unscheduled_alap(&g);
-        int min = INT_MAX;
-        for(auto u : v->outputs){
-            int temp = u->cycle - v->delay;
-            if(temp < min){
-                min = temp;
+        if(v->outputs.empty()){
+            v->cycle = lambda;
+        }
+        else{
+            int min = INT_MAX;
+            for(auto u : v->outputs){
+                int temp = u->cycle - v->delay;
+                if(temp < min){
+                    min = temp;
+                }
             }
+            if(min < 0){
+                throw ScheduleException("Cannot schedule ALAP with requested latency");
+            }
+            v->cycle = min;
         }
-        if(min < 0){
-            throw ScheduleException("Cannot schedule ALAP with requested latency");
-        }
-        v->cycle = min;
         
     }
     return g;
