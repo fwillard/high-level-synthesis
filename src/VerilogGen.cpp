@@ -98,9 +98,12 @@ void VerilogGen::generateIO(std::stringstream &ss){
         signed_items.clear();
     }
 
-    //add state register and done output
+    //add state register and done output and clk/rst
     ss <<std::endl << "\tinput Start;" <<std::endl;
     ss << "\toutput Done;" <<std::endl;
+    ss <<std::endl << "\tinput Clk;" <<std::endl;
+    ss << "\toutput Rst;" <<std::endl;
+    
     this->state_size = (int)ceil(log2(this->parser->final_states.size()));
     ss << "\treg [" << std::to_string(this->state_size-1) << ":0] state;" <<std::endl; //state register based on the number of states
 }
