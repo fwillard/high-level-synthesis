@@ -139,6 +139,8 @@ void VerilogGen::generateLogic(std::stringstream &ss){
     std::vector<int> state;
     for(int i = 1; i< this->parser->final_states.size()-1; i++){ //skip first and last state which are static
         state = this->parser->final_states.at(i);
+        if(state.empty())
+            continue;
         if(this->parser->operations.at(state.at(0)).symbol == "if" || this->parser->operations.at(state.at(0)).symbol == "NOP") //skip ifs, they are handled in the state control
             continue;
         
@@ -179,6 +181,8 @@ void VerilogGen::generateControl(std::stringstream &ss){
     std::vector<int> state;
     for(int i = 1; i< this->parser->final_states.size()-1; i++){ //0 and end state are already taken care of
         state = this->parser->final_states.at(i);
+        if(state.empty())
+            continue;
         if(this->parser->operations.at(state.at(0)).symbol == "NOP") //safeguard
             continue;
         ss << "\t\t\t\t" << std::to_string(this->state_size) << "'d" << i << ":" <<std::endl;//list case
