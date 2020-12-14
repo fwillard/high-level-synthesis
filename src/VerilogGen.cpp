@@ -113,6 +113,7 @@ void VerilogGen::generateIO(std::stringstream &ss){
 void VerilogGen::generateInitial(std::stringstream &ss){
     ss << "\tinitial begin" <<std::endl;
     ss << "\t\tstate = " << std::to_string(this->state_size) << "'d0;" <<std::endl;
+    ss << "\t\tDone = 1'd0;" << std::endl;
     ss << "\tend" <<std::endl;
 }
 
