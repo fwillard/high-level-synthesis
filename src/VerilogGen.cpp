@@ -14,36 +14,20 @@ void VerilogGen::setVerbosity(bool v){
 }
 
 void VerilogGen::generateHeader(std::string filename, std::stringstream &ss){
-    // tokenize line
-	std::vector <std::string> tokens;
-	std::stringstream lineStream(filename);
-	std::string tempString;
-    #if defined (_WIN32)
-        while (getline(lineStream, tempString, '\\')) {
-    #else
-        while (getline(lineStream, tempString, '/')) {
-    #endif
-		tokens.push_back(tempString);
-	}
-
-	std::string temp = tokens.back();
-	std::string circuitName = temp.substr(0, temp.size() - 4);
-
     // up front stuff
 	ss << "`timescale 1ns / 1ps" <<std::endl <<std::endl;
-	ss << "module circuit_" << circuitName << "(";
+	ss << "module HLSM (Clk, Rst, Start, Done";
 
     // have all the outputs, inputs, wires shown in the module parameters
     std::map<int, Operation>::iterator it;
     for(it = this->parser->operations.begin(); it != this->parser->operations.end(); it++){
         if(it->second.symbol == "input" || it->second.symbol == "output"){
-            ss << it->second.name;
             if (it != this->parser->operations.end()) ss << ", ";
+            ss << it->second.name;
         }
     }
 
-	// add clock and reset for REG
-	ss << "Done, Start, Clk, Rst);" <<std::endl;
+	ss << ");" << std::endl;
 }
 
 void VerilogGen::generateIO(std::stringstream &ss){
@@ -135,6 +119,18 @@ void VerilogGen::generateInitial(std::stringstream &ss){
 void VerilogGen::generateLogic(std::stringstream &ss){
     ss << "\talways @(state) begin" <<std::endl;
     ss << "\t\tcase(state)" <<std::endl;
+
+    //reset all outputs to 0{
+    ss << "\t\t\t" << std::to_string(this->state_size) << "'d0:" << std::endl;
+    ss << "\t\t\t\tbegin" << std::endl;
+    std::map<int, Operation>::iterator it;
+    for(it = this->parser->operations.begin(); it != this->parser->operations.end(); it++){
+        if(it->second.symbol == "output"){
+            ss << "\t\t\t\t\t" << it->second.name << " = " << std::to_string(it->second.datawidth) << "'d0;"<< std::endl;
+        }
+    }
+    ss << "\t\t\t\t\tDone = 1'd0;" << std::endl;
+    ss << "\t\t\t\tend" << std::endl;
     
     std::vector<int> state;
     for(int i = 1; i< this->parser->final_states.size()-1; i++){ //skip first and last state which are static
@@ -156,9 +152,9 @@ void VerilogGen::generateLogic(std::stringstream &ss){
     }
 
     ss << "\t\t\t" << this->state_size << "'d" << this->parser->final_states.size()-1 << ":" <<std::endl;
-    ss << "\t\t\tbegin" <<std::endl;//begin
-    ss << "\t\t\t\tDone = 1;" <<std::endl;
-    ss << "\t\t\tend" <<std::endl;//end
+    ss << "\t\t\t\tbegin" <<std::endl;//begin
+    ss << "\t\t\t\t\tDone = 1'd1;" <<std::endl;
+    ss << "\t\t\t\tend" <<std::endl;//end
 
     ss << "\t\tendcase" <<std::endl; //end case
     ss << "\tend" <<std::endl;   //end always
@@ -167,43 +163,60 @@ void VerilogGen::generateLogic(std::stringstream &ss){
 void VerilogGen::generateControl(std::stringstream &ss){
     ss << "\talways @(posedge Clk or posedge Rst) begin" <<std::endl;
     ss << "\t\tif (Rst)" <<std::endl;
-    ss << "\t\t\tstate = " << std::to_string(this->state_size) << "'d0;" <<std::endl;
+    //ss << "\t\t\tbegin" <<std::endl;//begin
+    ss << "\t\t\t\tstate = " << std::to_string(this->state_size) << "'d0;" <<std::endl;
+
     ss << "\t\telse" <<std::endl;
     ss << "\t\t\tcase(state)" <<std::endl;
 
     //generate the wait state
     ss << "\t\t\t\t" << this->state_size << "'d0:" <<std::endl;
-    ss << "\t\t\t\tbegin" <<std::endl;//begin
+    ss << "\t\t\t\t\tbegin" <<std::endl;//begin
     ss << "\t\t\t\t\t" << "if (Start)" <<std::endl;
+    
     ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d1;" << std::endl;
-    ss << "\t\t\t\tend" <<std::endl;//end
-
+    
+    ss << "\t\t\t\t\tend" <<std::endl;//end
+    
     std::vector<int> state;
     for(int i = 1; i< this->parser->final_states.size()-1; i++){ //0 and end state are already taken care of
         state = this->parser->final_states.at(i);
-        if(state.empty())
-            continue;
-        if(this->parser->operations.at(state.at(0)).symbol == "NOP") //safeguard
+        if(!state.empty() && this->parser->operations.at(state.at(0)).symbol == "NOP") //safeguard
             continue;
         ss << "\t\t\t\t" << std::to_string(this->state_size) << "'d" << i << ":" <<std::endl;//list case
         ss << "\t\t\t\t\tbegin" <<std::endl;//begin
-        
-        if(this->parser->operations.at(state.at(0)).symbol == "if"){ //generate if
-            ss << "\t\t\t\t\t" << "if (" << this->parser->operations.at(this->parser->operations.at(state.at(0)).arg0_id).name << ")" <<std::endl;
-            ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(state.at(0)).true_state << ";" <<std::endl;
-            ss << "\t\t\t\t\t" << "else" <<std::endl;
-            ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(state.at(0)).false_state << ";" <<std::endl;
+
+        std::vector<int> if_ops;
+        if(!state.empty()){
+            for(int j = 0; j<state.size(); j++){
+                if(this->parser->operations.at(state.at(j)).symbol == "if")
+                    if_ops.push_back(state.at(j));
+            }
+        }
+
+        if(if_ops.empty()){ //if there isnt an if
+            if(!state.empty()){
+                ss << "\t\t\t\t\t" << "state = " << this->state_size << "'d" << std::to_string(this->parser->operations.at(state.at(0)).true_state) << ";" <<std::endl;
+            }
+            else{
+                ss << "\t\t\t\t\t" << "state = " << this->state_size << "'d" << i+1 << ";" <<std::endl;
+            } 
         }
         else{
-            ss << "\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(state.at(0)).true_state << ";" <<std::endl;
+            for(int k : if_ops){ //generate if
+                ss << "\t\t\t\t\t" << "if (" << this->parser->operations.at(this->parser->operations.at(k).arg0_id).name << ")" <<std::endl;
+                ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(k).true_state << ";" <<std::endl;
+                ss << "\t\t\t\t\t" << "else" <<std::endl;
+                ss << "\t\t\t\t\t\t" << "state = " << this->state_size << "'d" << this->parser->operations.at(k).false_state << ";" <<std::endl;
+            }
         }
         ss << "\t\t\t\t\tend" <<std::endl;//end
     }
 
     ss << "\t\t\t\t" << this->state_size << "'d" << this->parser->final_states.size()-1 << ":" <<std::endl;
-    ss << "\t\t\t\tbegin" <<std::endl;//begin
+    ss << "\t\t\t\t\tbegin" <<std::endl;//begin
     ss << "\t\t\t\t\t" << "state = " << this->state_size << "'d0;" << std::endl;
-    ss << "\t\t\t\tend" <<std::endl;//end
+    ss << "\t\t\t\t\tend" <<std::endl;//end
 
     ss << "\t\t\tendcase" <<std::endl; //end case
     ss << "\tend" <<std::endl;   //end always
@@ -223,7 +236,7 @@ void VerilogGen::printOperation(std::string indent, std::stringstream &ss, int o
     ss << this->parser->operations.at(op).symbol << " ";            //output = arg0 <symbol> 
     ss << this->parser->operations.at(a1).name;                     //output = arg0 <symbol> arg1
     if(a2 > 0)
-        ss << " : "<< this->parser->operations.at(a2).name;       //output = arg0 <symbol> arg1 : arg2
+        ss << " : "<< this->parser->operations.at(a2).name;         //output = arg0 <symbol> arg1 : arg2
     ss << ";" <<std::endl;
 }
 

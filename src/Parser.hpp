@@ -18,19 +18,22 @@
 
 class Parser{
     public:
+        //Public Variables
+        std::map<int,Operation> operations;
+        std::vector<std::vector<int>> states;   //keeps track of which operation ID pertains to which state
+        std::vector<std::vector<int>> final_states;   //this is the states list following modification by the scheduling algorithm   
+
+
         //Public functions
         Parser();
         ~Parser();
         void parse(const std::string filename);
-        void print_operations();
+        void print_operations(std::vector<std::vector<int>> sts);
         Graph get_graph();
         void setVerbosity(bool v);
         void generateSortedStates(Graph g, int lambda);
         
-        //Public Variables
-        std::map<int,Operation> operations;
-        std::vector<std::vector<int>> states;   //keeps track of which operation ID pertains to which state
-        std::vector<std::vector<int>> final_states;   //this is the states list following modification by the scheduling algorithm        
+   
     private:
         //HelperFunctions
         int id_by_name(const std::string name);

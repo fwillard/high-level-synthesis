@@ -82,8 +82,6 @@ void Parser::parse(const std::string filename){
 
     generateOperations(this->tokens);
 
-    
-
     //Add OUOP last
     std::vector<int> end_state = {(int)operations.size()};
     Operation OUOP = std::get<1>(NOPs);
@@ -96,23 +94,6 @@ void Parser::parse(const std::string filename){
     }
     this->states.push_back(end_state);
     this->operations.insert({(int)operations.size(),OUOP}); 
-
-   /* //Add predecessors for all if and else blocks
-    for(std::vector<int> state : this->states){
-        if(this->operations.at(state.at(0)).symbol == "if"){ //if this state has an if block, it will be alone
-        //for(int pred : this->operations.at(state.at(0)).predisessors)
-            for( int op : this->states.at(this->operations.at(state.at(0)).true_state) ){ //loop through true block
-                this->operations.at(op).predisessors.push_back(state.at(0)); //add id of if
-                this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
-            } 
-            for(int op : this->states.at(this->operations.at(state.at(0)).false_state)){ //loop through false block, even if it is OUOP
-                if(this->operations.at(state.at(0)).has_else){//if there is actually an else block
-                    this->operations.at(op).predisessors.push_back(state.at(0)); //add id of if
-                    this->operations.at(op).predisessors = mergeVectors(this->operations.at(op).predisessors,this->operations.at(op).predisessors);
-                }
-            }
-        }
-    }*/
 
     bool doAdd = true;
     //Add predecessors for all if and else blocks
@@ -133,7 +114,7 @@ void Parser::parse(const std::string filename){
     //Print everything to console (if set) for debugging and visibility 
     if(this->verbose){
         std::cout << "\n\n States and Operations\n===========================================================================\n\n";
-        print_operations();
+        print_operations(this->states);
     }    
 }
 
@@ -432,7 +413,7 @@ Resource_Type Parser::generate_type(std::string sym){
     return Resource_Type::NOP; 
 }
 
-void Parser::print_operations(){
+void Parser::print_operations(std::vector<std::vector<int>> sts){
     std::string types[] = {"ADDER", "MULTIPLIER", "LOGICAL", "DIVIDER", "NOP"};
 
     std::map<int, Operation>::iterator it;
@@ -457,7 +438,7 @@ void Parser::print_operations(){
 
     //output all components
     int count = 0;
-    for( std::vector<int> state : this->states){
+    for( std::vector<int> state : sts){
         std::cout << std::right << std::setfill('-') << std::setw(120) << "STATE " << std::to_string(count); //output the current state number
         count++;
         std::cout << std::setfill(' ');
@@ -569,6 +550,18 @@ void Parser::generateSortedStates(Graph g, int lambda){
             continue;
 
         new_states.at(v.second->cycle).push_back(v.second->id);
+    }
+
+    //first step in 'text state adjustment' assumes no if statements, if statements later correct if issues
+    for(int i = 0; i<new_states.size(); i++){
+        if(new_states.at(i).empty())
+            continue;
+        std::vector<int> state = new_states.at(i);
+        for(int op : state){
+            if(this->operations.at(op).symbol != "if"){
+                this->operations.at(op).true_state = i+1;
+            }
+        }
     }
 
     this->final_states = new_states; //stub

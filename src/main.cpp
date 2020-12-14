@@ -40,31 +40,22 @@ int main(int argc, char** argv){
 
     Graph g = p.get_graph();
     
-    /*if(!Graph::is_acyclic(g)){
+    if(!Graph::is_acyclic(g)){
         std::cerr << "Graph is not acyclic" << std::endl;
         return 1;
-    }*/
-    
-    /*Scheduler s;
-    s.force_directed(g, latency);*/
-
-    
-    
-     if(!Graph::is_acyclic(g)){
-         std::cerr << "Graph is not acyclic" << std::endl;
-         return 1;
-     }
+    }
     
     Scheduler s;
     Graph g2 = s.force_directed(g, latency);
 
     std::cout << "\n\nFinal Schedule: " << std::endl;
-    s.print_schedule(g2);
 
+    s.print_schedule(g2); std::cout << "\n\n";
     p.generateSortedStates(g2,latency);
+    p.print_operations(p.final_states);
 
     VerilogGen v(&p);
-    v.setVerbosity(true);
+    v.setVerbosity(false);
     v.generate(c_file,verilog_file);
     return 0;
 }
