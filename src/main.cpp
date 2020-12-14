@@ -48,9 +48,9 @@ int main(int argc, char** argv){
     Scheduler s;
     Graph g2 = s.force_directed(g, latency);
 
-    std::cout << "\n\nFinal Schedule: " << std::endl;
+    std::cout << "\n\nFinal Schedule: \n\n" << std::endl;
 
-    s.print_schedule(g2); std::cout << "\n\n";
+    //s.print_schedule(g2); std::cout << "\n\n";
     p.generateSortedStates(g2,latency);
     p.print_operations(p.final_states);
 

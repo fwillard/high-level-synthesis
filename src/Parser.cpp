@@ -57,6 +57,10 @@ int Parser::setIfPreds(int if_id){
 void Parser::parse(const std::string filename){    
     
     tokenize(filename);
+    if(this->tokens.size() == 0){
+        throw ParserException("ERROR: Input file is empty");
+    }
+    
 
     if(this->verbose){
         std::cout << "\n\nTokens\n===========================================================================\n\n";
@@ -96,19 +100,29 @@ void Parser::parse(const std::string filename){
     this->operations.insert({(int)operations.size(),OUOP}); 
 
     bool doAdd = true;
+    int c_state = 0;
+    int l_if = -1;
     //Add predecessors for all if and else blocks
     for(std::vector<int> state : this->states){
-        if(this->operations.at(state.at(0)).symbol == "if"){ //if this state has an if block, it will be alone
+        if(this->operations.at(state.at(0)).symbol == "if"){ //if this state has an if block, it will be alone in this case
             for(int pred : this->operations.at(state.at(0)).predisessors){
                 if(this->operations.at(pred).symbol == "if"){ //detect nested if
                     doAdd = false;
                 } 
             }
             if(doAdd){
+                l_if = state.at(0);
                 setIfPreds(state.at(0)); //add predicessors for the state that was found
             }
             doAdd = true;
         }
+        else if(l_if >= 0){
+            for(int op : state){
+                //this->operations.at(op).predisessors.push_back(l_if);
+            }
+        }
+
+        c_state++;
     }
 
     //Print everything to console (if set) for debugging and visibility 
@@ -552,13 +566,50 @@ void Parser::generateSortedStates(Graph g, int lambda){
         new_states.at(v.second->cycle).push_back(v.second->id);
     }
 
-    //first step in 'text state adjustment' assumes no if statements, if statements later correct if issues
-    for(int i = 0; i<new_states.size(); i++){
-        if(new_states.at(i).empty())
+    //adjust "true/false states for state machine"
+    for(int i = 0; i<new_states.size(); i++){ //loop through all states to fix them
+        if(new_states.at(i).empty()) //skip over empty states
             continue;
         std::vector<int> state = new_states.at(i);
         for(int op : state){
-            if(this->operations.at(op).symbol != "if"){
+            if(this->operations.at(op).symbol == "if"){ //the next state will only ever increase
+                //find the location of the first operation of the if block in the new states, its state is the true state of if (IF)
+                std::vector<int>::iterator it;
+                for(int tmp_staten = 0; tmp_staten < new_states.size(); tmp_staten++){
+                    std::vector<int> tmp_state = new_states.at(tmp_staten);
+
+                    for( int j = 0; j< this->states.at(this->operations.at(op).true_state).size(); j++){
+                        it = find(tmp_state.begin(), tmp_state.end(), this->states.at(this->operations.at(op).true_state).at(j));
+
+                        if(it != tmp_state.end()) //if it isnt in this state continue
+                        break;
+                    }
+                    
+                    if(it != tmp_state.end()){
+                        this->operations.at(op).true_state = tmp_staten;
+                        break;
+                    }   
+                }
+                //if there is an if block, find the location of the first operation of the else block in the new states, its new state is the false state of if (ELSE)
+                if(this->operations.at(op).has_else){
+                    for(int tmp_staten = 0; tmp_staten < new_states.size(); tmp_staten++){
+                        std::vector<int> tmp_state = new_states.at(tmp_staten);
+
+                        for( int j = 0; j< this->states.at(this->operations.at(op).false_state).size(); j++){
+                            it = find(tmp_state.begin(), tmp_state.end(), this->states.at(this->operations.at(op).false_state).at(j));
+
+                            if(it != tmp_state.end()) //if it isnt in this state continue
+                            break;
+                        }
+                        
+                        if(it != tmp_state.end()){
+                            this->operations.at(op).false_state = tmp_staten;
+                            break;
+                        }   
+                    }
+                }
+            }
+            else{
                 this->operations.at(op).true_state = i+1;
             }
         }
