@@ -413,12 +413,12 @@ int Parser::id_by_name(const std::string name){
 
 Resource_Type Parser::generate_type(std::string sym){
     std::string adder_args[2] = {"+","-"};
-    std::string logic_args[9] = {">>","<<","%","++","--","?","<",">","=="};
+    std::string logic_args[9] = {">>","<<","++","--","?","<",">","=="};
     std::string nop_args[5]    = {"const","input","output","wire","register"};
 
     if(sym == "*")
         return Resource_Type::MULTIPLIER;
-    if(sym == "/")
+    if(sym == "/" || sym == "%")
         return Resource_Type::DIVIDER;
     if(find(begin(adder_args),end(adder_args),sym) != end(adder_args))
         return Resource_Type::ADDER;
